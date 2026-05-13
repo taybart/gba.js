@@ -1,0 +1,36 @@
+{
+  "name": "gbajs",
+  "version": "2.0.0",
+  "description": "Game Boy Advance emulator as a modern JS library",
+  "type": "module",
+  "main": "./dist/gbajs.umd.cjs",
+  "module": "./dist/gbajs.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/gbajs.js",
+      "require": "./dist/gbajs.umd.cjs"
+    },
+    "./embedded": {
+      "import": "./dist/gba.js",
+      "require": "./dist/gba.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "keywords": [
+    "gba",
+    "emulator",
+    "gameboy-advance"
+  ],
+  "license": "BSD-2-Clause"
+}
