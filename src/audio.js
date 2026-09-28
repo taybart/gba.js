@@ -1,22 +1,81 @@
-function GameBoyAdvanceAudio() {
-	globalThis.AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext;
-	if (globalThis.AudioContext) {
-		var self = this;
-		this.context = new AudioContext();
-		this.bufferSize = 0;
-		this.bufferSize = 4096;
-		this.maxSamples = this.bufferSize << 2;
-		this.buffers = [new Float32Array(this.maxSamples), new Float32Array(this.maxSamples)];
-		this.sampleMask = this.maxSamples - 1;
-		if (this.context.createScriptProcessor) {
-			this.jsAudio = this.context.createScriptProcessor(this.bufferSize);
-		} else {
-			this.jsAudio = this.context.createJavaScriptNode(this.bufferSize);
-		}
-		this.jsAudio.onaudioprocess = function(e) { self.audioProcess(e) };
-	} else {
-		this.context = null;
+// Runs on the audio rendering thread. Kept as a string so it can be loaded
+// from a Blob URL, which keeps the bundle a single self-contained file.
+var WORKLET_SOURCE = `
+class GameBoyAdvanceAudioProcessor extends AudioWorkletProcessor {
+	constructor(options) {
+		super();
+		var opts = options.processorOptions;
+		this.size = opts.bufferSize;
+		this.mask = this.size - 1;
+		this.left = new Float32Array(this.size);
+		this.right = new Float32Array(this.size);
+		this.writePointer = 0;
+		this.readPointer = 0;
+		this.resampleRatio = opts.resampleRatio;
+		this.prebuffer = opts.prebuffer;
+		this.maxBuffered = opts.maxBuffered;
+		this.buffering = true;
+		this.port.onmessage = (e) => this.push(e.data.left, e.data.right);
 	}
+
+	available() {
+		return (this.writePointer - (this.readPointer | 0)) & this.mask;
+	}
+
+	push(left, right) {
+		var w = this.writePointer;
+		for (var i = 0; i < left.length; ++i) {
+			this.left[w] = left[i];
+			this.right[w] = right[i];
+			w = (w + 1) & this.mask;
+		}
+		this.writePointer = w;
+		// If the emulator has gotten ahead of playback, skip forward so latency doesn't grow
+		if (this.available() > this.maxBuffered) {
+			this.readPointer = (w - this.prebuffer) & this.mask;
+		}
+	}
+
+	process(inputs, outputs) {
+		var left = outputs[0][0];
+		var right = outputs[0][1] || left;
+		var i = 0;
+		if (this.buffering && this.available() >= this.prebuffer) {
+			this.buffering = false;
+		}
+		if (!this.buffering) {
+			var o = this.readPointer;
+			for (; i < left.length; ++i, o += this.resampleRatio) {
+				if (o >= this.size) {
+					o -= this.size;
+				}
+				if ((o | 0) == this.writePointer) {
+					this.buffering = true;
+					break;
+				}
+				left[i] = this.left[o | 0];
+				right[i] = this.right[o | 0];
+			}
+			this.readPointer = o;
+		}
+		for (; i < left.length; ++i) {
+			left[i] = 0;
+			right[i] = 0;
+		}
+		return true;
+	}
+}
+registerProcessor('gba-audio', GameBoyAdvanceAudioProcessor);
+`;
+
+function GameBoyAdvanceAudio() {
+	var AudioContextClass = globalThis.AudioContext || globalThis.webkitAudioContext;
+	this.context = AudioContextClass ? new AudioContextClass() : null;
+	this.output = null;
+	this.port = null;
+	this.connected = false;
+	this.paused = false;
+	this.enabled = false;
 
 	this.masterEnable = true;
 	this.masterVolume = 1.0;
@@ -24,6 +83,76 @@ function GameBoyAdvanceAudio() {
 	this.SOUND_MAX = 0x400;
 	this.FIFO_MAX = 0x200;
 	this.PSG_MAX = 0x080;
+
+	this.sampleRate = 32768;
+	this.resampleRatio = 1;
+	if (this.context) {
+		this.resampleRatio = this.sampleRate / this.context.sampleRate;
+		if (this.context.audioWorklet && globalThis.AudioWorkletNode) {
+			this.initWorklet();
+		} else {
+			this.initScriptProcessor();
+		}
+	}
+};
+
+GameBoyAdvanceAudio.prototype.initWorklet = function() {
+	var self = this;
+	this.batchSize = 256;
+	this.pendingCount = 0;
+	this.pendingLeft = new Float32Array(this.batchSize);
+	this.pendingRight = new Float32Array(this.batchSize);
+
+	var url = URL.createObjectURL(new Blob([WORKLET_SOURCE], { type: 'application/javascript' }));
+	this.context.audioWorklet.addModule(url).then(function() {
+		URL.revokeObjectURL(url);
+		self.output = new AudioWorkletNode(self.context, 'gba-audio', {
+			numberOfInputs: 0,
+			outputChannelCount: [2],
+			processorOptions: {
+				bufferSize: 16384,
+				resampleRatio: self.resampleRatio,
+				prebuffer: 2048,
+				maxBuffered: 8192
+			}
+		});
+		self.port = self.output.port;
+		self.updateOutput();
+	}, function(e) {
+		// e.g. a Content-Security-Policy that blocks blob: URLs
+		URL.revokeObjectURL(url);
+		console.warn('AudioWorklet unavailable, falling back to ScriptProcessorNode', e);
+		self.initScriptProcessor();
+	});
+};
+
+GameBoyAdvanceAudio.prototype.initScriptProcessor = function() {
+	var self = this;
+	this.bufferSize = 4096;
+	this.maxSamples = this.bufferSize << 2;
+	this.buffers = [new Float32Array(this.maxSamples), new Float32Array(this.maxSamples)];
+	this.sampleMask = this.maxSamples - 1;
+	this.output = this.context.createScriptProcessor(this.bufferSize);
+	this.output.onaudioprocess = function(e) { self.audioProcess(e) };
+	this.updateOutput();
+};
+
+// Connects the output node when sound is enabled and the emulator is running
+GameBoyAdvanceAudio.prototype.updateOutput = function() {
+	if (!this.output) {
+		return;
+	}
+	var wanted = this.enabled && !this.paused;
+	if (wanted && !this.connected) {
+		this.output.connect(this.context.destination);
+	} else if (!wanted && this.connected) {
+		this.output.disconnect(this.context.destination);
+	}
+	this.connected = wanted;
+	if (wanted && this.context.state == 'suspended') {
+		// Browsers start contexts suspended until a user gesture; this succeeds once one has happened
+		this.context.resume();
+	}
 };
 
 GameBoyAdvanceAudio.prototype.clear = function() {
@@ -33,12 +162,7 @@ GameBoyAdvanceAudio.prototype.clear = function() {
 	this.fifoBSample = 0;
 
 	this.enabled = false;
-	if (this.context) {
-		try {
-			this.jsAudio.disconnect(this.context.destination);
-		} catch (e) {
-		}
-	}
+	this.updateOutput();
 
 	this.enableChannel3 = false;
 	this.enableChannel4 = false;
@@ -131,12 +255,7 @@ GameBoyAdvanceAudio.prototype.clear = function() {
 	this.backup = 0;
 	this.totalSamples = 0;
 
-	this.sampleRate = 32768;
 	this.sampleInterval = this.cpuFrequency / this.sampleRate;
-	this.resampleRatio = 1;
-	if (this.context) {
-		this.resampleRatio = this.sampleRate / this.context.sampleRate;
-	}
 
 	this.writeSquareChannelFC(0, 0);
 	this.writeSquareChannelFC(1, 0);
@@ -154,17 +273,8 @@ GameBoyAdvanceAudio.prototype.defrost = function(frost) {
 };
 
 GameBoyAdvanceAudio.prototype.pause = function(paused) {
-	if (this.context) {
-		if (paused) {
-			try {
-				this.jsAudio.disconnect(this.context.destination);
-			} catch (e) {
-				// Sigh
-			}
-		} else if (this.enabled) {
-			this.jsAudio.connect(this.context.destination);
-		}
-	}
+	this.paused = paused;
+	this.updateOutput();
 };
 
 GameBoyAdvanceAudio.prototype.updateTimers = function() {
@@ -249,16 +359,7 @@ GameBoyAdvanceAudio.prototype.writeEnable = function(value) {
 	this.nextSample = this.nextEvent;
 	this.updateTimers();
 	this.core.irq.pollNextEvent();
-	if (this.context) {
-		if (value) {
-			this.jsAudio.connect(this.context.destination);
-		} else {
-			try {
-				this.jsAudio.disconnect(this.context.destination);
-			} catch (e) {
-			}
-		}
-	}
+	this.updateOutput();
 };
 
 GameBoyAdvanceAudio.prototype.writeSoundControlLo = function(value) {
@@ -709,11 +810,29 @@ GameBoyAdvanceAudio.prototype.sample = function() {
 	sampleLeft = Math.max(Math.min(sampleLeft, 1), -1);
 	sampleRight *= this.masterVolume / this.SOUND_MAX;
 	sampleRight = Math.max(Math.min(sampleRight, 1), -1);
-	if (this.buffers) {
+	if (this.port) {
+		this.pendingLeft[this.pendingCount] = sampleLeft;
+		this.pendingRight[this.pendingCount] = sampleRight;
+		if (++this.pendingCount == this.batchSize) {
+			this.flushSamples();
+		}
+	} else if (this.buffers) {
 		this.buffers[0][samplePointer] = sampleLeft;
 		this.buffers[1][samplePointer] = sampleRight;
+		this.samplePointer = (samplePointer + 1) & this.sampleMask;
 	}
-	this.samplePointer = (samplePointer + 1) & this.sampleMask;
+};
+
+GameBoyAdvanceAudio.prototype.flushSamples = function() {
+	this.pendingCount = 0;
+	if (!this.masterEnable) {
+		// Dropping samples lets the worklet run dry and output silence
+		return;
+	}
+	this.port.postMessage({ left: this.pendingLeft, right: this.pendingRight },
+		[this.pendingLeft.buffer, this.pendingRight.buffer]);
+	this.pendingLeft = new Float32Array(this.batchSize);
+	this.pendingRight = new Float32Array(this.batchSize);
 };
 
 GameBoyAdvanceAudio.prototype.audioProcess = function(audioProcessingEvent) {
