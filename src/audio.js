@@ -1,74 +1,8 @@
-// Runs on the audio rendering thread. Kept as a string so it can be loaded
-// from a Blob URL, which keeps the bundle a single self-contained file.
-var WORKLET_SOURCE = `
-class GameBoyAdvanceAudioProcessor extends AudioWorkletProcessor {
-	constructor(options) {
-		super();
-		var opts = options.processorOptions;
-		this.size = opts.bufferSize;
-		this.mask = this.size - 1;
-		this.left = new Float32Array(this.size);
-		this.right = new Float32Array(this.size);
-		this.writePointer = 0;
-		this.readPointer = 0;
-		this.resampleRatio = opts.resampleRatio;
-		this.prebuffer = opts.prebuffer;
-		this.maxBuffered = opts.maxBuffered;
-		this.buffering = true;
-		this.port.onmessage = (e) => this.push(e.data.left, e.data.right);
-	}
+import WORKLET_SOURCE from './audio-worklet.js?raw';
 
-	available() {
-		return (this.writePointer - (this.readPointer | 0)) & this.mask;
-	}
-
-	push(left, right) {
-		var w = this.writePointer;
-		for (var i = 0; i < left.length; ++i) {
-			this.left[w] = left[i];
-			this.right[w] = right[i];
-			w = (w + 1) & this.mask;
-		}
-		this.writePointer = w;
-		// If the emulator has gotten ahead of playback, skip forward so latency doesn't grow
-		if (this.available() > this.maxBuffered) {
-			this.readPointer = (w - this.prebuffer) & this.mask;
-		}
-	}
-
-	process(inputs, outputs) {
-		var left = outputs[0][0];
-		var right = outputs[0][1] || left;
-		var i = 0;
-		if (this.buffering && this.available() >= this.prebuffer) {
-			this.buffering = false;
-		}
-		if (!this.buffering) {
-			var o = this.readPointer;
-			for (; i < left.length; ++i, o += this.resampleRatio) {
-				if (o >= this.size) {
-					o -= this.size;
-				}
-				if ((o | 0) == this.writePointer) {
-					this.buffering = true;
-					break;
-				}
-				left[i] = this.left[o | 0];
-				right[i] = this.right[o | 0];
-			}
-			this.readPointer = o;
-		}
-		for (; i < left.length; ++i) {
-			left[i] = 0;
-			right[i] = 0;
-		}
-		return true;
-	}
-}
-registerProcessor('gba-audio', GameBoyAdvanceAudioProcessor);
-`;
-
-function GameBoyAdvanceAudio() {
+function GameBoyAdvanceAudio(options) {
+	options = options || {};
+	this.workletUrl = options.audioWorkletUrl || null;
 	var AudioContextClass = globalThis.AudioContext || globalThis.webkitAudioContext;
 	this.context = AudioContextClass ? new AudioContextClass() : null;
 	this.output = null;
@@ -103,9 +37,16 @@ GameBoyAdvanceAudio.prototype.initWorklet = function() {
 	this.pendingLeft = new Float32Array(this.batchSize);
 	this.pendingRight = new Float32Array(this.batchSize);
 
-	var url = URL.createObjectURL(new Blob([WORKLET_SOURCE], { type: 'application/javascript' }));
+	var blobUrl = null;
+	var url = this.workletUrl;
+	if (!url) {
+		blobUrl = URL.createObjectURL(new Blob([WORKLET_SOURCE], { type: 'text/javascript' }));
+		url = blobUrl;
+	}
 	this.context.audioWorklet.addModule(url).then(function() {
-		URL.revokeObjectURL(url);
+		if (blobUrl) {
+			URL.revokeObjectURL(blobUrl);
+		}
 		self.output = new AudioWorkletNode(self.context, 'gba-audio', {
 			numberOfInputs: 0,
 			outputChannelCount: [2],
@@ -119,8 +60,10 @@ GameBoyAdvanceAudio.prototype.initWorklet = function() {
 		self.port = self.output.port;
 		self.updateOutput();
 	}, function(e) {
-		// e.g. a Content-Security-Policy that blocks blob: URLs
-		URL.revokeObjectURL(url);
+		// e.g. a Content-Security-Policy that blocks blob: URLs; pass audioWorkletUrl to avoid them
+		if (blobUrl) {
+			URL.revokeObjectURL(blobUrl);
+		}
 		console.warn('AudioWorklet unavailable, falling back to ScriptProcessorNode', e);
 		self.initScriptProcessor();
 	});

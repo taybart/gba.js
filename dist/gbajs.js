@@ -1710,9 +1710,9 @@ P.prototype.compileArm = function(t) {
           }
           s.writesPC = c == this.PC;
         } else {
-          var G = t & 1048576, c = (t & 61440) >> 12, v = (t & 3840) >> 4, E = r = t & 15, _ = t & 32, h = t & 64, C = t & 2097152, e = t & 4194304, R;
+          var G = t & 1048576, c = (t & 61440) >> 12, v = (t & 3840) >> 4, I = r = t & 15, _ = t & 32, h = t & 64, C = t & 2097152, e = t & 4194304, R;
           if (e) {
-            var o = E | v;
+            var o = I | v;
             R = this.armCompiler.constructAddressingMode23Immediate(t, o, i);
           } else
             R = this.armCompiler.constructAddressingMode23Register(t, r, i);
@@ -1721,7 +1721,7 @@ P.prototype.compileArm = function(t) {
         break;
       case 67108864:
       case 100663296:
-        var c = (t & 61440) >> 12, G = t & 1048576, y = t & 4194304, e = t & 33554432, R = function() {
+        var c = (t & 61440) >> 12, G = t & 1048576, O = t & 4194304, e = t & 33554432, R = function() {
           throw "Unimplemented memory access: 0x" + t.toString(16);
         };
         if (~t & 16777216 && (t &= 4292870143), e) {
@@ -1735,11 +1735,11 @@ P.prototype.compileArm = function(t) {
           var T = t & 4095;
           R = this.armCompiler.constructAddressingMode23Immediate(t, T, i);
         }
-        G ? y ? s = this.armCompiler.constructLDRB(c, R, i) : s = this.armCompiler.constructLDR(c, R, i) : y ? s = this.armCompiler.constructSTRB(c, R, i) : s = this.armCompiler.constructSTR(c, R, i), s.writesPC = c == this.PC || R.writesPC;
+        G ? O ? s = this.armCompiler.constructLDRB(c, R, i) : s = this.armCompiler.constructLDR(c, R, i) : O ? s = this.armCompiler.constructSTRB(c, R, i) : s = this.armCompiler.constructSTR(c, R, i), s.writesPC = c == this.PC || R.writesPC;
         break;
       case 134217728:
-        var G = t & 1048576, C = t & 2097152, D = t & 4194304, N = t & 8388608, H = t & 16777216, m = t & 65535, p = (t & 983040) >> 16, R, o = 0, T = 0, X = !1;
-        if (N) {
+        var G = t & 1048576, C = t & 2097152, N = t & 4194304, D = t & 8388608, H = t & 16777216, m = t & 65535, p = (t & 983040) >> 16, R, o = 0, T = 0, X = !1;
+        if (D) {
           H && (o = 4);
           for (var M = 1, e = 0; e < 16; M <<= 1, ++e)
             m & M && (C && e == p && !T && (m &= ~M, o += 4, X = !0), T += 4);
@@ -1748,7 +1748,7 @@ P.prototype.compileArm = function(t) {
           for (var M = 1, e = 0; e < 16; M <<= 1, ++e)
             m & M && (C && e == p && !T && (m &= ~M, o += 4, X = !0), o -= 4, T -= 4);
         }
-        C ? R = this.armCompiler.constructAddressingMode4Writeback(o, T, p, X) : R = this.armCompiler.constructAddressingMode4(o, p), G ? (D ? s = this.armCompiler.constructLDMS(m, R, i) : s = this.armCompiler.constructLDM(m, R, i), s.writesPC = !!(m & 32768)) : (D ? s = this.armCompiler.constructSTMS(m, R, i) : s = this.armCompiler.constructSTM(m, R, i), s.writesPC = !1);
+        C ? R = this.armCompiler.constructAddressingMode4Writeback(o, T, p, X) : R = this.armCompiler.constructAddressingMode4(o, p), G ? (N ? s = this.armCompiler.constructLDMS(m, R, i) : s = this.armCompiler.constructLDM(m, R, i), s.writesPC = !!(m & 32768)) : (N ? s = this.armCompiler.constructSTMS(m, R, i) : s = this.armCompiler.constructSTM(m, R, i), s.writesPC = !1);
         break;
       case 167772160:
         var o = t & 16777215;
@@ -2149,15 +2149,15 @@ U.prototype.store32 = function(t, s) {
 U.prototype.replaceData = function(t) {
   w.prototype.replaceData.call(this, t, 0);
 };
-function ct(t, s, e) {
+function ot(t, s, e) {
   typeof e > "u" && (e = !0), typeof s > "u" && (s = 8);
   var i = (t >>> 0).toString(16).toUpperCase();
   return s -= i.length, s < 0 ? i : (e ? "0x" : "") + new Array(s + 1).join("0") + i;
 }
-function ht(t, s) {
+function at(t, s) {
   this.core = t, this.rom = s, this.readWrite = 0, this.direction = 0, this.device = new J(this);
 }
-ht.prototype.store16 = function(t, s) {
+at.prototype.store16 = function(t, s) {
   switch (t) {
     case 196:
       this.device.setPins(s & 15);
@@ -2176,7 +2176,7 @@ ht.prototype.store16 = function(t, s) {
     e &= ~this.direction, this.rom.view.setUint16(t, e | s & this.direction, !0);
   }
 };
-ht.prototype.outputPins = function(t) {
+at.prototype.outputPins = function(t) {
   if (this.readWrite) {
     var s = this.rom.view.getUint16(196, !0);
     s &= this.direction, this.rom.view.setUint16(196, s | t & ~this.direction & 15, !0);
@@ -2643,7 +2643,7 @@ b.prototype.serviceDma = function(t, s) {
   if (s.enable) {
     var e = s.width, i = this.DMA_OFFSET[s.srcControl] * e, r = this.DMA_OFFSET[s.dstControl] * e, a = s.nextCount, h = s.nextSource & this.OFFSET_MASK, n = s.nextDest & this.OFFSET_MASK, o = s.nextSource >>> this.BASE_OFFSET, u = s.nextDest >>> this.BASE_OFFSET, c = this.memory[o], p = this.memory[u], f = null, l = null, x = 4294967295, m = 4294967295, v;
     if (p.ICACHE_PAGE_BITS)
-      for (var E = n + a * e >> p.ICACHE_PAGE_BITS, _ = n >> p.ICACHE_PAGE_BITS; _ <= E; ++_)
+      for (var I = n + a * e >> p.ICACHE_PAGE_BITS, _ = n >> p.ICACHE_PAGE_BITS; _ <= I; ++_)
         p.invalidatePage(_ << p.ICACHE_PAGE_BITS);
     if ((u == this.REGION_WORKING_RAM || u == this.REGION_WORKING_IRAM) && (l = p.view, m = p.mask), (o == this.REGION_WORKING_RAM || o == this.REGION_WORKING_IRAM || o == this.REGION_CART0 || o == this.REGION_CART1) && (f = c.view, x = c.mask), c && p)
       if (f && l)
@@ -2672,8 +2672,8 @@ b.prototype.serviceDma = function(t, s) {
       s.nextCount = s.count, s.dstControl == this.DMA_INCREMENT_RELOAD && (s.nextDest = s.dest), this.scheduleDma(t, s);
     else {
       s.enable = !1;
-      var y = this.memory[this.REGION_IO];
-      y.registers[this.DMA_REGISTER[t]] &= 32736;
+      var O = this.memory[this.REGION_IO];
+      O.registers[this.DMA_REGISTER[t]] &= 32736;
     }
   }
 };
@@ -2688,12 +2688,12 @@ b.prototype.flushSave = function() {
   this.save.writePending = !1;
 };
 b.prototype.allocGPIO = function(t) {
-  return new ht(this.core, t);
+  return new at(this.core, t);
 };
-function I() {
+function E() {
   this.FREQUENCY = 16777216, this.cpu = null, this.enable = !1, this.IRQ_VBLANK = 0, this.IRQ_HBLANK = 1, this.IRQ_VCOUNTER = 2, this.IRQ_TIMER0 = 3, this.IRQ_TIMER1 = 4, this.IRQ_TIMER2 = 5, this.IRQ_TIMER3 = 6, this.IRQ_SIO = 7, this.IRQ_DMA0 = 8, this.IRQ_DMA1 = 9, this.IRQ_DMA2 = 10, this.IRQ_DMA3 = 11, this.IRQ_KEYPAD = 12, this.IRQ_GAMEPAK = 13, this.MASK_VBLANK = 1, this.MASK_HBLANK = 2, this.MASK_VCOUNTER = 4, this.MASK_TIMER0 = 8, this.MASK_TIMER1 = 16, this.MASK_TIMER2 = 32, this.MASK_TIMER3 = 64, this.MASK_SIO = 128, this.MASK_DMA0 = 256, this.MASK_DMA1 = 512, this.MASK_DMA2 = 1024, this.MASK_DMA3 = 2048, this.MASK_KEYPAD = 4096, this.MASK_GAMEPAK = 8192;
 }
-I.prototype.clear = function() {
+E.prototype.clear = function() {
   this.enable = !1, this.enabledIRQs = 0, this.interruptFlags = 0, this.dma = new Array();
   for (var t = 0; t < 4; ++t)
     this.dma.push({
@@ -2728,7 +2728,7 @@ I.prototype.clear = function() {
     });
   this.nextEvent = 0, this.springIRQ = !1, this.resetSP();
 };
-I.prototype.freeze = function() {
+E.prototype.freeze = function() {
   return {
     enable: this.enable,
     enabledIRQs: this.enabledIRQs,
@@ -2739,10 +2739,10 @@ I.prototype.freeze = function() {
     springIRQ: this.springIRQ
   };
 };
-I.prototype.defrost = function(t) {
+E.prototype.defrost = function(t) {
   this.enable = t.enable, this.enabledIRQs = t.enabledIRQs, this.interruptFlags = t.interruptFlags, this.dma = t.dma, this.timers = t.timers, this.timersEnabled = 0, this.timers[0].enable && ++this.timersEnabled, this.timers[1].enable && ++this.timersEnabled, this.timers[2].enable && ++this.timersEnabled, this.timers[3].enable && ++this.timersEnabled, this.nextEvent = t.nextEvent, this.springIRQ = t.springIRQ;
 };
-I.prototype.updateTimers = function() {
+E.prototype.updateTimers = function() {
   if (!(this.nextEvent > this.cpu.cycles)) {
     if (this.springIRQ && (this.cpu.raiseIRQ(), this.springIRQ = !1), this.video.updateTimers(this.cpu), this.audio.updateTimers(), this.timersEnabled) {
       var t = this.timers[0];
@@ -2752,13 +2752,13 @@ I.prototype.updateTimers = function() {
     s.enable && s.doIrq && s.nextIRQ && this.cpu.cycles >= s.nextIRQ && (s.nextIRQ = 0, this.raiseIRQ(this.IRQ_DMA0)), s = this.dma[1], s.enable && s.doIrq && s.nextIRQ && this.cpu.cycles >= s.nextIRQ && (s.nextIRQ = 0, this.raiseIRQ(this.IRQ_DMA1)), s = this.dma[2], s.enable && s.doIrq && s.nextIRQ && this.cpu.cycles >= s.nextIRQ && (s.nextIRQ = 0, this.raiseIRQ(this.IRQ_DMA2)), s = this.dma[3], s.enable && s.doIrq && s.nextIRQ && this.cpu.cycles >= s.nextIRQ && (s.nextIRQ = 0, this.raiseIRQ(this.IRQ_DMA3)), this.pollNextEvent();
   }
 };
-I.prototype.resetSP = function() {
+E.prototype.resetSP = function() {
   this.cpu.switchMode(this.cpu.MODE_SUPERVISOR), this.cpu.gprs[this.cpu.SP] = 50364384, this.cpu.switchMode(this.cpu.MODE_IRQ), this.cpu.gprs[this.cpu.SP] = 50364320, this.cpu.switchMode(this.cpu.MODE_SYSTEM), this.cpu.gprs[this.cpu.SP] = 50364160;
 };
-I.prototype.swi32 = function(t) {
+E.prototype.swi32 = function(t) {
   this.swi(t >> 16);
 };
-I.prototype.swi = function(t) {
+E.prototype.swi = function(t) {
   if (this.core.mmu.bios.real) {
     this.cpu.raiseTrap();
     return;
@@ -2842,12 +2842,12 @@ I.prototype.swi = function(t) {
         }
       return;
     case 14:
-      for (var C = this.cpu.gprs[2], v, E, _, y, D, N, H, R = this.cpu.gprs[0], T = this.cpu.gprs[1], M, W, Z, j, q, G; C--; )
-        v = this.core.mmu.load32(R) / 256, E = this.core.mmu.load32(R + 4) / 256, _ = this.core.mmu.load16(R + 8), y = this.core.mmu.load16(R + 10), D = this.core.mmu.load16(R + 12) / 256, N = this.core.mmu.load16(R + 14) / 256, H = (this.core.mmu.loadU16(R + 16) >> 8) / 128 * Math.PI, R += 20, M = j = Math.cos(H), W = Z = Math.sin(H), M *= D, W *= -D, Z *= N, j *= N, q = v - (M * _ + W * y), G = E - (Z * _ + j * y), this.core.mmu.store16(T, M * 256 | 0), this.core.mmu.store16(T + 2, W * 256 | 0), this.core.mmu.store16(T + 4, Z * 256 | 0), this.core.mmu.store16(T + 6, j * 256 | 0), this.core.mmu.store32(T + 8, q * 256 | 0), this.core.mmu.store32(T + 12, G * 256 | 0), T += 16;
+      for (var C = this.cpu.gprs[2], v, I, _, O, N, D, H, R = this.cpu.gprs[0], T = this.cpu.gprs[1], M, W, Z, j, q, G; C--; )
+        v = this.core.mmu.load32(R) / 256, I = this.core.mmu.load32(R + 4) / 256, _ = this.core.mmu.load16(R + 8), O = this.core.mmu.load16(R + 10), N = this.core.mmu.load16(R + 12) / 256, D = this.core.mmu.load16(R + 14) / 256, H = (this.core.mmu.loadU16(R + 16) >> 8) / 128 * Math.PI, R += 20, M = j = Math.cos(H), W = Z = Math.sin(H), M *= N, W *= -N, Z *= D, j *= D, q = v - (M * _ + W * O), G = I - (Z * _ + j * O), this.core.mmu.store16(T, M * 256 | 0), this.core.mmu.store16(T + 2, W * 256 | 0), this.core.mmu.store16(T + 4, Z * 256 | 0), this.core.mmu.store16(T + 6, j * 256 | 0), this.core.mmu.store32(T + 8, q * 256 | 0), this.core.mmu.store32(T + 12, G * 256 | 0), T += 16;
       break;
     case 15:
-      for (var C = this.cpu.gprs[2], D, N, H, R = this.cpu.gprs[0], T = this.cpu.gprs[1], X = this.cpu.gprs[3], M, W, Z, j; C--; )
-        D = this.core.mmu.load16(R) / 256, N = this.core.mmu.load16(R + 2) / 256, H = (this.core.mmu.loadU16(R + 4) >> 8) / 128 * Math.PI, R += 6, M = j = Math.cos(H), W = Z = Math.sin(H), M *= D, W *= -D, Z *= N, j *= N, this.core.mmu.store16(T, M * 256 | 0), this.core.mmu.store16(T + X, W * 256 | 0), this.core.mmu.store16(T + X * 2, Z * 256 | 0), this.core.mmu.store16(T + X * 3, j * 256 | 0), T += X * 4;
+      for (var C = this.cpu.gprs[2], N, D, H, R = this.cpu.gprs[0], T = this.cpu.gprs[1], X = this.cpu.gprs[3], M, W, Z, j; C--; )
+        N = this.core.mmu.load16(R) / 256, D = this.core.mmu.load16(R + 2) / 256, H = (this.core.mmu.loadU16(R + 4) >> 8) / 128 * Math.PI, R += 6, M = j = Math.cos(H), W = Z = Math.sin(H), M *= N, W *= -N, Z *= D, j *= D, this.core.mmu.store16(T, M * 256 | 0), this.core.mmu.store16(T + X, W * 256 | 0), this.core.mmu.store16(T + X * 2, Z * 256 | 0), this.core.mmu.store16(T + X * 3, j * 256 | 0), T += X * 4;
       break;
     case 17:
       this.lz77(this.cpu.gprs[0], this.cpu.gprs[1], 1);
@@ -2865,20 +2865,20 @@ I.prototype.swi = function(t) {
       this.rl(this.cpu.gprs[0], this.cpu.gprs[1], 2);
       break;
     case 31:
-      var ot = this.cpu.mmu.load32(this.cpu.gprs[0] + 4);
-      this.cpu.gprs[0] = ot / Math.pow(2, (180 - this.cpu.gprs[1] - this.cpu.gprs[2] / 256) / 12) >>> 0;
+      var nt = this.cpu.mmu.load32(this.cpu.gprs[0] + 4);
+      this.cpu.gprs[0] = nt / Math.pow(2, (180 - this.cpu.gprs[1] - this.cpu.gprs[2] / 256) / 12) >>> 0;
       break;
     default:
       throw "Unimplemented software interrupt: 0x" + t.toString(16);
   }
 };
-I.prototype.masterEnable = function(t) {
+E.prototype.masterEnable = function(t) {
   this.enable = t, this.enable && this.enabledIRQs & this.interruptFlags && this.cpu.raiseIRQ();
 };
-I.prototype.setInterruptsEnabled = function(t) {
+E.prototype.setInterruptsEnabled = function(t) {
   this.enabledIRQs = t, this.enabledIRQs & this.MASK_SIO && this.core.STUB("Serial I/O interrupts not implemented"), this.enabledIRQs & this.MASK_KEYPAD && this.core.STUB("Keypad interrupts not implemented"), this.enable && this.enabledIRQs & this.interruptFlags && this.cpu.raiseIRQ();
 };
-I.prototype.pollNextEvent = function() {
+E.prototype.pollNextEvent = function() {
   var t = this.video.nextEvent, s;
   if (this.audio.enabled && (s = this.audio.nextEvent, (!t || s < t) && (t = s)), this.timersEnabled) {
     var e = this.timers[0];
@@ -2887,7 +2887,7 @@ I.prototype.pollNextEvent = function() {
   var i = this.dma[0];
   s = i.nextIRQ, i.enable && i.doIrq && s && (!t || s < t) && (t = s), i = this.dma[1], s = i.nextIRQ, i.enable && i.doIrq && s && (!t || s < t) && (t = s), i = this.dma[2], s = i.nextIRQ, i.enable && i.doIrq && s && (!t || s < t) && (t = s), i = this.dma[3], s = i.nextIRQ, i.enable && i.doIrq && s && (!t || s < t) && (t = s), this.core.ASSERT(t >= this.cpu.cycles, "Next event is before present"), this.nextEvent = t;
 };
-I.prototype.waitForIRQ = function() {
+E.prototype.waitForIRQ = function() {
   var t, s = this.testIRQ() || this.video.hblankIRQ || this.video.vblankIRQ || this.video.vcounterIRQ;
   if (this.timersEnabled && (t = this.timers[0], s = s || t.doIrq, t = this.timers[1], s = s || t.doIrq, t = this.timers[2], s = s || t.doIrq, t = this.timers[3], s = s || t.doIrq), !s)
     return !1;
@@ -2898,32 +2898,32 @@ I.prototype.waitForIRQ = function() {
     } else
       return !1;
 };
-I.prototype.testIRQ = function() {
+E.prototype.testIRQ = function() {
   return this.enable && this.enabledIRQs & this.interruptFlags ? (this.springIRQ = !0, this.nextEvent = this.cpu.cycles, !0) : !1;
 };
-I.prototype.raiseIRQ = function(t) {
+E.prototype.raiseIRQ = function(t) {
   this.interruptFlags |= 1 << t, this.io.registers[this.io.IF >> 1] = this.interruptFlags, this.enable && this.enabledIRQs & 1 << t && this.cpu.raiseIRQ();
 };
-I.prototype.dismissIRQs = function(t) {
+E.prototype.dismissIRQs = function(t) {
   this.interruptFlags &= ~t, this.io.registers[this.io.IF >> 1] = this.interruptFlags;
 };
-I.prototype.dmaSetSourceAddress = function(t, s) {
+E.prototype.dmaSetSourceAddress = function(t, s) {
   this.dma[t].source = s & 4294967294;
 };
-I.prototype.dmaSetDestAddress = function(t, s) {
+E.prototype.dmaSetDestAddress = function(t, s) {
   this.dma[t].dest = s & 4294967294;
 };
-I.prototype.dmaSetWordCount = function(t, s) {
+E.prototype.dmaSetWordCount = function(t, s) {
   this.dma[t].count = s || (t == 3 ? 65536 : 16384);
 };
-I.prototype.dmaWriteControl = function(t, s) {
+E.prototype.dmaWriteControl = function(t, s) {
   var e = this.dma[t], i = e.enable;
   e.dstControl = (s & 96) >> 5, e.srcControl = (s & 384) >> 7, e.repeat = !!(s & 512), e.width = s & 1024 ? 4 : 2, e.drq = !!(s & 2048), e.timing = (s & 12288) >> 12, e.doIrq = !!(s & 16384), e.enable = !!(s & 32768), e.nextIRQ = 0, e.drq && this.core.WARN("DRQ not implemented"), !i && e.enable && (e.nextSource = e.source, e.nextDest = e.dest, e.nextCount = e.count, this.cpu.mmu.scheduleDma(t, e));
 };
-I.prototype.timerSetReload = function(t, s) {
+E.prototype.timerSetReload = function(t, s) {
   this.timers[t].reload = s & 65535;
 };
-I.prototype.timerWriteControl = function(t, s) {
+E.prototype.timerWriteControl = function(t, s) {
   var e = this.timers[t], i = e.prescaleBits;
   switch (s & 3) {
     case 0:
@@ -2943,17 +2943,17 @@ I.prototype.timerWriteControl = function(t, s) {
   var r = e.enable;
   e.enable = !!((s & 128) >> 7 << t), !r && e.enable ? (e.countUp ? e.nextEvent = 0 : (e.lastEvent = this.cpu.cycles, e.nextEvent = this.cpu.cycles + e.overflowInterval), this.io.registers[this.io.TM0CNT_LO + (t << 2) >> 1] = e.reload, e.oldReload = e.reload, ++this.timersEnabled) : r && !e.enable ? (e.countUp || (this.io.registers[this.io.TM0CNT_LO + (t << 2) >> 1] = e.oldReload + (this.cpu.cycles - e.lastEvent) >> i), --this.timersEnabled) : e.prescaleBits != i && !e.countUp && (e.nextEvent = e.lastEvent + e.overflowInterval), this.pollNextEvent();
 };
-I.prototype.timerRead = function(t) {
+E.prototype.timerRead = function(t) {
   var s = this.timers[t];
   return s.enable && !s.countUp ? s.oldReload + (this.cpu.cycles - s.lastEvent) >> s.prescaleBits : this.io.registers[this.io.TM0CNT_LO + (t << 2) >> 1];
 };
-I.prototype.halt = function() {
+E.prototype.halt = function() {
   if (!this.enable)
     throw "Requested HALT when interrupts were disabled!";
   if (!this.waitForIRQ())
     throw "Waiting on interrupt forever.";
 };
-I.prototype.lz77 = function(t, s, e) {
+E.prototype.lz77 = function(t, s, e) {
   for (var i = (this.cpu.mmu.load32(t) & 4294967040) >> 8, r, a = t + 4, h = s, n = 0, o, u, c, p = 0, f; i > 0; )
     if (n) {
       if (r & 128)
@@ -2965,7 +2965,7 @@ I.prototype.lz77 = function(t, s, e) {
     } else
       r = this.cpu.mmu.loadU8(a++), n = 8;
 };
-I.prototype.huffman = function(t, s) {
+E.prototype.huffman = function(t, s) {
   t = t & 4294967292;
   var e = this.cpu.mmu.load32(t), i = e >> 8, r = e & 15;
   if (32 % r)
@@ -2977,8 +2977,8 @@ I.prototype.huffman = function(t, s) {
     h.push(this.cpu.mmu.loadU8(t + 5 + p));
   var f, l = 0, x, m, v = 0;
   for (f = h[0]; i > 0; ) {
-    var E = this.cpu.mmu.load32(u);
-    for (u += 4, x = 32; x > 0; --x, E <<= 1) {
+    var I = this.cpu.mmu.load32(u);
+    for (u += 4, x = 32; x > 0; --x, I <<= 1) {
       if (typeof f == "number") {
         var _ = (l - 1 | 1) + ((f & 63) << 1) + 2;
         f = {
@@ -2988,7 +2988,7 @@ I.prototype.huffman = function(t, s) {
           rTerm: f & 64
         }, h[l] = f;
       }
-      if (E & 2147483648)
+      if (I & 2147483648)
         if (f.rTerm)
           m = h[f.r];
         else {
@@ -3006,7 +3006,7 @@ I.prototype.huffman = function(t, s) {
   }
   a && this.cpu.mmu.store32(c, o);
 };
-I.prototype.rl = function(t, s, e) {
+E.prototype.rl = function(t, s, e) {
   t = t & 4294967292;
   for (var i = (this.cpu.mmu.load32(t) & 4294967040) >> 8, r = 4 - i & 3, a, h, n = t + 4, o = s, u = 0; i > 0; )
     if (a = this.cpu.mmu.loadU8(n++), a & 128)
@@ -3581,7 +3581,7 @@ L.prototype.invalidatePage = function(t) {
 L.prototype.STUB_REG = function(t, s) {
   this.core.STUB("Unimplemented " + t + " register write: " + s.toString(16));
 };
-const pt = `// The AudioWorkletProcessor that plays the emulator's output. It runs on the
+const ct = `// The AudioWorkletProcessor that plays the emulator's output. It runs on the
 // audio rendering thread, so it can't import anything or touch the emulator.
 //
 // It's loaded one of two ways (see GameBoyAdvanceAudio.prototype.initWorklet):
@@ -3663,7 +3663,7 @@ g.prototype.initWorklet = function() {
   var t = this;
   this.batchSize = 256, this.pendingCount = 0, this.pendingLeft = new Float32Array(this.batchSize), this.pendingRight = new Float32Array(this.batchSize);
   var s = null, e = this.workletUrl;
-  e || (s = URL.createObjectURL(new Blob([pt], { type: "text/javascript" })), e = s), this.context.audioWorklet.addModule(e).then(function() {
+  e || (s = URL.createObjectURL(new Blob([ct], { type: "text/javascript" })), e = s), this.context.audioWorklet.addModule(e).then(function() {
     s && URL.revokeObjectURL(s), t.output = new AudioWorkletNode(t.context, "gba-audio", {
       numberOfInputs: 0,
       outputChannelCount: [2],
@@ -4000,10 +4000,10 @@ k.prototype.insert = function(t, s) {
 };
 k.prototype.invalidatePage = function(t) {
 };
-function nt(t) {
+function ht(t) {
   k.call(this, t), this.vram = this.buffer;
 }
-nt.prototype = Object.create(k.prototype);
+ht.prototype = Object.create(k.prototype);
 function it(t) {
   k.call(this, t), this.oam = this.buffer, this.objs = new Array(128);
   for (var s = 0; s < 128; ++s)
@@ -4055,7 +4055,7 @@ it.prototype.store16 = function(t, s) {
   }
   k.prototype.store16.call(this, t, s);
 };
-function O() {
+function y() {
   this.colors = [new Array(256), new Array(256)], this.adjustedColors = [new Array(256), new Array(256)], this.passthroughColors = [
     this.colors[0],
     // BG0
@@ -4071,77 +4071,77 @@ function O() {
     // Backdrop
   ], this.blendY = 1;
 }
-O.prototype.overwrite = function(t) {
+y.prototype.overwrite = function(t) {
   for (var s = 0; s < 512; ++s)
     this.store16(s << 1, t[s]);
 };
-O.prototype.loadU8 = function(t) {
+y.prototype.loadU8 = function(t) {
   return this.loadU16(t) >> 8 * (t & 1) & 255;
 };
-O.prototype.loadU16 = function(t) {
+y.prototype.loadU16 = function(t) {
   return this.colors[(t & 512) >> 9][(t & 511) >> 1];
 };
-O.prototype.load16 = function(t) {
+y.prototype.load16 = function(t) {
   return this.loadU16(t) << 16 >> 16;
 };
-O.prototype.load32 = function(t) {
+y.prototype.load32 = function(t) {
   return this.loadU16(t) | this.loadU16(t + 2) << 16;
 };
-O.prototype.store16 = function(t, s) {
+y.prototype.store16 = function(t, s) {
   var e = (t & 512) >> 9, i = (t & 511) >> 1;
   this.colors[e][i] = s, this.adjustedColors[e][i] = this.adjustColor(s);
 };
-O.prototype.store32 = function(t, s) {
+y.prototype.store32 = function(t, s) {
   this.store16(t, s & 65535), this.store16(t + 2, s >> 16);
 };
-O.prototype.invalidatePage = function(t) {
+y.prototype.invalidatePage = function(t) {
 };
-O.prototype.convert16To32 = function(t, s) {
+y.prototype.convert16To32 = function(t, s) {
   var e = (t & 31) << 3, i = (t & 992) >> 2, r = (t & 31744) >> 7;
   s[0] = e, s[1] = i, s[2] = r;
 };
-O.prototype.mix = function(t, s, e, i) {
+y.prototype.mix = function(t, s, e, i) {
   var r = s & 31, a = (s & 992) >> 5, h = (s & 31744) >> 10, n = i & 31, o = (i & 992) >> 5, u = (i & 31744) >> 10, c = Math.min(t * r + e * n, 31), p = Math.min(t * a + e * o, 31), f = Math.min(t * h + e * u, 31);
   return c | p << 5 | f << 10;
 };
-O.prototype.makeDarkPalettes = function(t) {
+y.prototype.makeDarkPalettes = function(t) {
   this.adjustColor != this.adjustColorDark && (this.adjustColor = this.adjustColorDark, this.resetPalettes()), this.resetPaletteLayers(t);
 };
-O.prototype.makeBrightPalettes = function(t) {
+y.prototype.makeBrightPalettes = function(t) {
   this.adjustColor != this.adjustColorBright && (this.adjustColor = this.adjustColorBright, this.resetPalettes()), this.resetPaletteLayers(t);
 };
-O.prototype.makeNormalPalettes = function() {
+y.prototype.makeNormalPalettes = function() {
   this.passthroughColors[0] = this.colors[0], this.passthroughColors[1] = this.colors[0], this.passthroughColors[2] = this.colors[0], this.passthroughColors[3] = this.colors[0], this.passthroughColors[4] = this.colors[1], this.passthroughColors[5] = this.colors[0];
 };
-O.prototype.makeSpecialPalette = function(t) {
+y.prototype.makeSpecialPalette = function(t) {
   this.passthroughColors[t] = this.adjustedColors[t == 4 ? 1 : 0];
 };
-O.prototype.makeNormalPalette = function(t) {
+y.prototype.makeNormalPalette = function(t) {
   this.passthroughColors[t] = this.colors[t == 4 ? 1 : 0];
 };
-O.prototype.resetPaletteLayers = function(t) {
+y.prototype.resetPaletteLayers = function(t) {
   t & 1 ? this.passthroughColors[0] = this.adjustedColors[0] : this.passthroughColors[0] = this.colors[0], t & 2 ? this.passthroughColors[1] = this.adjustedColors[0] : this.passthroughColors[1] = this.colors[0], t & 4 ? this.passthroughColors[2] = this.adjustedColors[0] : this.passthroughColors[2] = this.colors[0], t & 8 ? this.passthroughColors[3] = this.adjustedColors[0] : this.passthroughColors[3] = this.colors[0], t & 16 ? this.passthroughColors[4] = this.adjustedColors[1] : this.passthroughColors[4] = this.colors[1], t & 32 ? this.passthroughColors[5] = this.adjustedColors[0] : this.passthroughColors[5] = this.colors[0];
 };
-O.prototype.resetPalettes = function() {
+y.prototype.resetPalettes = function() {
   var t, s = this.adjustedColors[0], e = this.colors[0];
   for (t = 0; t < 256; ++t)
     s[t] = this.adjustColor(e[t]);
   for (s = this.adjustedColors[1], e = this.colors[1], t = 0; t < 256; ++t)
     s[t] = this.adjustColor(e[t]);
 };
-O.prototype.accessColor = function(t, s) {
+y.prototype.accessColor = function(t, s) {
   return this.passthroughColors[t][s];
 };
-O.prototype.adjustColorDark = function(t) {
+y.prototype.adjustColorDark = function(t) {
   var s = t & 31, e = (t & 992) >> 5, i = (t & 31744) >> 10;
   return s = s - s * this.blendY, e = e - e * this.blendY, i = i - i * this.blendY, s | e << 5 | i << 10;
 };
-O.prototype.adjustColorBright = function(t) {
+y.prototype.adjustColorBright = function(t) {
   var s = t & 31, e = (t & 992) >> 5, i = (t & 31744) >> 10;
   return s = s + (31 - s) * this.blendY, e = e + (31 - e) * this.blendY, i = i + (31 - i) * this.blendY, s | e << 5 | i << 10;
 };
-O.prototype.adjustColor = O.prototype.adjustColorBright;
-O.prototype.setBlendY = function(t) {
+y.prototype.adjustColor = y.prototype.adjustColorBright;
+y.prototype.setBlendY = function(t) {
   this.blendY != t && (this.blendY = t, this.resetPalettes());
 };
 function rt(t, s) {
@@ -4156,16 +4156,16 @@ rt.prototype.drawScanlineNormal = function(t, s, e, i, r) {
   this.vflip ? f = this.cachedHeight - s + e - 1 : f = s - e;
   var l = f & 7, x, m, v = this.multipalette ? 1 : 0;
   a.objCharacterMapping ? m = (f & 504) * this.cachedWidth >> 6 : m = (f & 504) << 2 - v, this.mosaic && (x = a.objMosaicX - 1 - (a.objMosaicX + o - 1) % a.objMosaicX, o += x, n += x), this.hflip ? p = this.cachedWidth - n - 1 : p = n;
-  var E = a.accessTile(this.TILE_OFFSET + (h & 4) * v, this.tileBase + (m << v) + ((p & 504) >> 3 - v), l << v);
+  var I = a.accessTile(this.TILE_OFFSET + (h & 4) * v, this.tileBase + (m << v) + ((p & 504) >> 3 - v), l << v);
   for (h = n; h < c; ++h)
-    x = this.mosaic ? o % a.objMosaicX : 0, this.hflip ? p = this.cachedWidth - (h - x) - 1 : p = h - x, v ? (!(h & 3) || this.mosaic && !x) && (E = a.accessTile(this.TILE_OFFSET + (p & 4), this.tileBase + (m << 1) + ((p & 504) >> 2), l << 1)) : (!(h & 7) || this.mosaic && !x) && (E = a.accessTile(this.TILE_OFFSET, this.tileBase + m + (p >> 3), l)), this.pushPixel(a.LAYER_OBJ, this, a, E, p & 7, o, t, u, !1), o++;
+    x = this.mosaic ? o % a.objMosaicX : 0, this.hflip ? p = this.cachedWidth - (h - x) - 1 : p = h - x, v ? (!(h & 3) || this.mosaic && !x) && (I = a.accessTile(this.TILE_OFFSET + (p & 4), this.tileBase + (m << 1) + ((p & 504) >> 2), l << 1)) : (!(h & 7) || this.mosaic && !x) && (I = a.accessTile(this.TILE_OFFSET, this.tileBase + m + (p >> 3), l)), this.pushPixel(a.LAYER_OBJ, this, a, I, p & 7, o, t, u, !1), o++;
 };
 rt.prototype.drawScanlineAffine = function(t, s, e, i, r) {
   var a = this.oam.video, h, n, o, u = this.mode | a.target2[a.LAYER_OBJ] | this.priority << 1;
   this.mode == 16 && (u |= a.TARGET1_MASK), a.blendMode == 1 && a.alphaEnabled && (u |= a.target1[a.LAYER_OBJ]);
-  var c, p, f = s - e, l, x, m = this.multipalette ? 1 : 0, v = this.cachedWidth << this.doublesize, E = this.cachedHeight << this.doublesize, _ = v;
+  var c, p, f = s - e, l, x, m = this.multipalette ? 1 : 0, v = this.cachedWidth << this.doublesize, I = this.cachedHeight << this.doublesize, _ = v;
   for (_ > a.HORIZONTAL_PIXELS && (v = a.HORIZONTAL_PIXELS), this.x < a.HORIZONTAL_PIXELS ? (this.x < i ? (n = i - this.x, o = i) : (n = 0, o = this.x), r < _ + this.x && (_ = r - this.x)) : (n = i + 512 - this.x, o = i, r < _ - n && (_ = r)), h = n; h < _; ++h) {
-    if (c = this.scalerotOam.a * (h - (v >> 1)) + this.scalerotOam.b * (f - (E >> 1)) + (this.cachedWidth >> 1), p = this.scalerotOam.c * (h - (v >> 1)) + this.scalerotOam.d * (f - (E >> 1)) + (this.cachedHeight >> 1), this.mosaic && (c -= h % a.objMosaicX * this.scalerotOam.a + s % a.objMosaicY * this.scalerotOam.b, p -= h % a.objMosaicX * this.scalerotOam.c + s % a.objMosaicY * this.scalerotOam.d), c < 0 || c >= this.cachedWidth || p < 0 || p >= this.cachedHeight) {
+    if (c = this.scalerotOam.a * (h - (v >> 1)) + this.scalerotOam.b * (f - (I >> 1)) + (this.cachedWidth >> 1), p = this.scalerotOam.c * (h - (v >> 1)) + this.scalerotOam.d * (f - (I >> 1)) + (this.cachedHeight >> 1), this.mosaic && (c -= h % a.objMosaicX * this.scalerotOam.a + s % a.objMosaicY * this.scalerotOam.b, p -= h % a.objMosaicX * this.scalerotOam.c + s % a.objMosaicY * this.scalerotOam.d), c < 0 || c >= this.cachedWidth || p < 0 || p >= this.cachedHeight) {
       o++;
       continue;
     }
@@ -4237,7 +4237,7 @@ function A() {
   }(this);
 }
 A.prototype.clear = function(t) {
-  this.palette = new O(), this.vram = new nt(t.SIZE_VRAM), this.oam = new it(t.SIZE_OAM), this.oam.video = this, this.objLayers = [
+  this.palette = new y(), this.vram = new ht(t.SIZE_VRAM), this.oam = new it(t.SIZE_OAM), this.oam.video = this, this.objLayers = [
     new z(this, 0),
     new z(this, 1),
     new z(this, 2),
@@ -4501,29 +4501,29 @@ A.prototype.prepareScanline = function(t) {
 A.prototype.drawScanlineBGMode0 = function(t, s, e, i) {
   var r = this.video, a, h = r.vcount, n = e, o = s.x, u = s.y, c, p, f = h + u;
   this.mosaic && (f -= h % r.bgMosaicY);
-  var l = f & 7, x, m = s.screenBase, v = s.charBase, E = s.size, _ = s.index, y = r.sharedMap, q = s.multipalette ? 1 : 0, G = r.target2[_] | s.priority << 1 | r.BACKGROUND_MASK;
+  var l = f & 7, x, m = s.screenBase, v = s.charBase, I = s.size, _ = s.index, O = r.sharedMap, q = s.multipalette ? 1 : 0, G = r.target2[_] | s.priority << 1 | r.BACKGROUND_MASK;
   r.blendMode == 1 && r.alphaEnabled && (G |= r.target1[_]);
   var C = f << 3 & 1984;
-  E == 2 ? C += f << 3 & 2048 : E == 3 && (C += f << 4 & 4096);
-  var D;
-  E & 1 ? D = 511 : D = 255, r.accessMapMode0(m, E, e + o & D, C, y);
-  var N = r.accessTile(v, y.tile << q, (y.vflip ? 7 - l : l) << q);
+  I == 2 ? C += f << 3 & 2048 : I == 3 && (C += f << 4 & 4096);
+  var N;
+  I & 1 ? N = 511 : N = 255, r.accessMapMode0(m, I, e + o & N, C, O);
+  var D = r.accessTile(v, O.tile << q, (O.vflip ? 7 - l : l) << q);
   for (a = e; a < i; ++a) {
-    if (c = a + o & D, x = this.mosaic ? n % r.bgMosaicX : 0, c -= x, p = c & 7, q) {
-      if ((!p || this.mosaic && !x) && r.accessMapMode0(m, E, c, C, y), (!(p & 3) || this.mosaic && !x) && (N = r.accessTile(v + (!!(c & 4) == !y.hflip ? 4 : 0), y.tile << 1, (y.vflip ? 7 - l : l) << 1), !N && !(p & 3))) {
+    if (c = a + o & N, x = this.mosaic ? n % r.bgMosaicX : 0, c -= x, p = c & 7, q) {
+      if ((!p || this.mosaic && !x) && r.accessMapMode0(m, I, c, C, O), (!(p & 3) || this.mosaic && !x) && (D = r.accessTile(v + (!!(c & 4) == !O.hflip ? 4 : 0), O.tile << 1, (O.vflip ? 7 - l : l) << 1), !D && !(p & 3))) {
         a += 3, n += 4;
         continue;
       }
-    } else if ((!p || this.mosaic && !x) && (r.accessMapMode0(m, E, c, C, y), N = r.accessTile(v, y.tile, y.vflip ? 7 - l : l), !N && !p)) {
+    } else if ((!p || this.mosaic && !x) && (r.accessMapMode0(m, I, c, C, O), D = r.accessTile(v, O.tile, O.vflip ? 7 - l : l), !D && !p)) {
       a += 7, n += 8;
       continue;
     }
-    y.hflip && (p = 7 - p), s.pushPixel(_, y, r, N, p, n, t, G, !1), n++;
+    O.hflip && (p = 7 - p), s.pushPixel(_, O, r, D, p, n, t, G, !1), n++;
   }
 };
 A.prototype.drawScanlineBGMode2 = function(t, s, e, i) {
-  var r = this.video, a, h = r.vcount, n = e, o, u, c = s.screenBase, p = s.charBase, f = s.size, l = 128 << f, x = s.index, m = r.sharedMap, v, E = r.target2[x] | s.priority << 1 | r.BACKGROUND_MASK;
-  r.blendMode == 1 && r.alphaEnabled && (E |= r.target1[x]);
+  var r = this.video, a, h = r.vcount, n = e, o, u, c = s.screenBase, p = s.charBase, f = s.size, l = 128 << f, x = s.index, m = r.sharedMap, v, I = r.target2[x] | s.priority << 1 | r.BACKGROUND_MASK;
+  r.blendMode == 1 && r.alphaEnabled && (I |= r.target1[x]);
   var _;
   for (a = e; a < i; ++a) {
     if (o = s.dx * a + s.sx, u = s.dy * a + s.sy, this.mosaic && (o -= a % r.bgMosaicX * s.dx + h % r.bgMosaicY * s.dmx, u -= a % r.bgMosaicX * s.dy + h % r.bgMosaicY * s.dmy), s.overflow)
@@ -4532,7 +4532,7 @@ A.prototype.drawScanlineBGMode2 = function(t, s, e, i) {
       n++;
       continue;
     }
-    _ = (u << 1 & 2032) << f, r.accessMapMode1(c, f, o, _, m), v = this.vram.loadU8(p + (m.tile << 6) + ((u & 7) << 3) + (o & 7)), s.pushPixel(x, m, r, v, 0, n, t, E, !1), n++;
+    _ = (u << 1 & 2032) << f, r.accessMapMode1(c, f, o, _, m), v = this.vram.loadU8(p + (m.tile << 6) + ((u & 7) << 3) + (o & 7)), s.pushPixel(x, m, r, v, 0, n, t, I, !1), n++;
   }
 };
 A.prototype.drawScanlineBGMode3 = function(t, s, e, i) {
@@ -4739,7 +4739,7 @@ $.prototype.clear = function() {
   }, this.linkLayer = null;
 };
 $.prototype.setMode = function(t) {
-  t & 8 ? t &= 12 : t &= 3, this.mode = t, this.core.INFO("Setting SIO mode to " + ct(t, 1));
+  t & 8 ? t &= 12 : t &= 3, this.mode = t, this.core.INFO("Setting SIO mode to " + ot(t, 1));
 };
 $.prototype.writeRCNT = function(t) {
   this.mode == this.SIO_GPIO && this.core.STUB("General purpose serial not supported");
@@ -4805,7 +4805,7 @@ $.prototype.read = function(t) {
   return 0;
 };
 function S(t) {
-  t = t || {}, this.LOG_ERROR = 1, this.LOG_WARN = 2, this.LOG_STUB = 4, this.LOG_INFO = 8, this.LOG_DEBUG = 16, this.SYS_ID = "com.endrift.gbajs", this.logLevel = this.LOG_ERROR | this.LOG_WARN, this.rom = null, this.cpu = new P(), this.mmu = new b(), this.irq = new I(), this.io = new L(), this.audio = new g(t), this.video = new Q(), this.keypad = new Y(), this.sio = new $(), this.cpu.mmu = this.mmu, this.cpu.irq = this.irq, this.mmu.cpu = this.cpu, this.mmu.core = this, this.irq.cpu = this.cpu, this.irq.io = this.io, this.irq.audio = this.audio, this.irq.video = this.video, this.irq.core = this, this.io.cpu = this.cpu, this.io.audio = this.audio, this.io.video = this.video, this.io.keypad = this.keypad, this.io.sio = this.sio, this.io.core = this, this.audio.cpu = this.cpu, this.audio.core = this, this.video.cpu = this.cpu, this.video.core = this, this.keypad.core = this, this.sio.core = this, t.bindInput !== !1 && this.keypad.registerHandlers(), this.doStep = this.waitFrame, this.paused = !1, this.seenFrame = !1, this.seenSave = !1, this.lastVblank = 0, this.queue = null, this.reportFPS = null, this.throttle = t.throttle || 16;
+  t = t || {}, this.LOG_ERROR = 1, this.LOG_WARN = 2, this.LOG_STUB = 4, this.LOG_INFO = 8, this.LOG_DEBUG = 16, this.SYS_ID = "com.endrift.gbajs", this.logLevel = this.LOG_ERROR | this.LOG_WARN, this.rom = null, this.cpu = new P(), this.mmu = new b(), this.irq = new E(), this.io = new L(), this.audio = new g(t), this.video = new Q(), this.keypad = new Y(), this.sio = new $(), this.cpu.mmu = this.mmu, this.cpu.irq = this.irq, this.mmu.cpu = this.cpu, this.mmu.core = this, this.irq.cpu = this.cpu, this.irq.io = this.io, this.irq.audio = this.audio, this.irq.video = this.video, this.irq.core = this, this.io.cpu = this.cpu, this.io.audio = this.audio, this.io.video = this.video, this.io.keypad = this.keypad, this.io.sio = this.sio, this.io.core = this, this.audio.cpu = this.cpu, this.audio.core = this, this.video.cpu = this.cpu, this.video.core = this, this.keypad.core = this, this.sio.core = this, t.bindInput !== !1 && this.keypad.registerHandlers(), this.doStep = this.waitFrame, this.paused = !1, this.seenFrame = !1, this.seenSave = !1, this.lastVblank = 0, this.queue = null, this.reportFPS = null, this.throttle = t.throttle || 16;
   var s = this;
   this.queueFrame = function(e) {
     s.queue = setTimeout(e, s.throttle);
@@ -5025,22 +5025,8 @@ S.prototype.release = function(t) {
 S.prototype.setSpeed = function(t) {
   this.throttle = Math.max(1, Math.floor(16 / t));
 };
-const ut = "BgAA6v7//+oFAADq/v//6v7//+oAAKDhDAAA6v7//+oC86DjAABd4wHToAMg0E0CAEAt6QIAXuUEAFDjCQAACwUAUOMHAAALAEC96A7wsOEPUC3pAQOg4wDgj+IE8BDlD1C96ATwXuIQQC3pBNBN4rAQzeEBQ6DjAkyE4rAA1OGyAM3hsBDd4QEAgOGwAMThAUOg4x8AoOMA8CnhAACg4wEDxOXTAKDjAPAp4bgAVOGwEN3hABAR4AAQIRC4EEQR8///CgFDoOMCTITisgDd4bAAxOEE0I3iEIC96A==";
-function lt(t) {
-  for (var s = atob(t), e = new ArrayBuffer(s.length), i = new Uint8Array(e), r = 0; r < s.length; r++)
-    i[r] = s.charCodeAt(r);
-  return e;
-}
-var ft = lt(ut);
-function at(t) {
-  S.call(this, t), this.setBios(ft);
-}
-at.prototype = Object.create(S.prototype);
-at.prototype.constructor = at;
 export {
-  ft as BIOS,
   S as GameBoyAdvance,
-  at as GameBoyAdvanceEmbedded,
-  at as default
+  S as default
 };
-//# sourceMappingURL=gba.js.map
+//# sourceMappingURL=gbajs.js.map

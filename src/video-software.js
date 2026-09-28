@@ -868,7 +868,6 @@ GameBoyAdvanceSoftwareRenderer.prototype.freeze = function() {
 	for (var i = 0; i < this.oam.buffer.length; ++i) {
 		oam[i] = this.oam.buffer[i];
 	}
-	console.log('[freeze] palette', palette.length, 'vram', vram.length, 'oam', oam.length);
 	return {
 		palette: palette,
 		vram: vram,
@@ -877,17 +876,13 @@ GameBoyAdvanceSoftwareRenderer.prototype.freeze = function() {
 };
 
 GameBoyAdvanceSoftwareRenderer.prototype.defrost = function(frost) {
-	console.log('[defrost] frost keys', Object.keys(frost || {}));
 	if (frost && frost.palette) {
-		console.log('[defrost] restoring palette', frost.palette.length);
 		this.palette.overwrite(new Uint16Array(frost.palette));
 	}
 	if (frost && frost.vram) {
-		console.log('[defrost] restoring vram', frost.vram.length);
 		this.vram.insert(0, new Uint16Array(frost.vram));
 	}
 	if (frost && frost.oam) {
-		console.log('[defrost] restoring oam', frost.oam.length);
 		this.oam.overwrite(new Uint16Array(frost.oam));
 	}
 };

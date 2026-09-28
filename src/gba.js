@@ -25,7 +25,7 @@ function GameBoyAdvance(options) {
 	this.mmu = new GameBoyAdvanceMMU();
 	this.irq = new GameBoyAdvanceInterruptHandler();
 	this.io = new GameBoyAdvanceIO();
-	this.audio = new GameBoyAdvanceAudio();
+	this.audio = new GameBoyAdvanceAudio(options);
 	this.video = new GameBoyAdvanceVideo();
 	this.keypad = new GameBoyAdvanceKeypad();
 	this.sio = new GameBoyAdvanceSIO();
@@ -368,7 +368,6 @@ GameBoyAdvance.prototype.retrieveSavedata = function() {
 
 GameBoyAdvance.prototype.freeze = function() {
 	var video = this.video.freeze();
-	console.log('[gba.freeze] video.renderPath?', video.renderPath ? 'yes' : 'no');
 	return {
 		'cpu': this.cpu.freeze(),
 		'mmu': this.mmu.freeze(),
@@ -380,14 +379,12 @@ GameBoyAdvance.prototype.freeze = function() {
 };
 
 GameBoyAdvance.prototype.defrost = function(frost) {
-	console.log('[gba.defrost] video?', !!frost.video, 'renderPath?', frost.video && !!frost.video.renderPath);
 	this.cpu.defrost(frost.cpu);
 	this.mmu.defrost(frost.mmu);
 	this.audio.defrost(frost.audio);
 	this.video.defrost(frost.video);
 	this.irq.defrost(frost.irq);
 	this.io.defrost(frost.io);
-	console.log('[gba.defrost] done');
 };
 
 GameBoyAdvance.prototype.log = function(level, message) {};

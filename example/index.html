@@ -77,15 +77,14 @@
 </div>
 
 <script type="module">
-  import GBA from './dist/gbajs.js';
+  // Served by `npm run dev` (http://localhost:5173/example/), straight from
+  // src/ with the BIOS built in. A page using the built library imports
+  // dist/gba.js the same way.
+  import GBA from '/src/index-embedded.js';
 
   const canvas = document.getElementById('screen');
   const gba = new GBA({ bindInput: false });
   gba.setCanvas(canvas);
-
-  fetch('./legacy/resources/bios.bin')
-    .then(r => r.arrayBuffer())
-    .then(bios => gba.setBios(bios));
 
   document.getElementById('run').addEventListener('click', () => {
     const file = document.getElementById('rom').files[0];
