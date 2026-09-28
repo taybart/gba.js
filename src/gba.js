@@ -74,6 +74,10 @@ function GameBoyAdvance(options) {
 	this.reportFPS = null;
 	this.throttle = options.throttle || 16; // This is rough, but the 2/3ms difference gives us a good overhead
 
+	// Called with (cart code, bytes) whenever the game saves, in place of
+	// localStorage, for pages that keep saves elsewhere; see storeSavedata
+	this.onSavedata = options.onSavedata || null;
+
 	var self = this;
 	this.queueFrame = function (f) {
 		self.queue = setTimeout(f, self.throttle);
@@ -344,6 +348,11 @@ GameBoyAdvance.prototype.downloadSavedata = function() {
 
 GameBoyAdvance.prototype.storeSavedata = function() {
 	var sram = this.mmu.save;
+	if (this.onSavedata) {
+		// A copy: the game keeps writing to its own
+		this.onSavedata(this.mmu.cart.code, new Uint8Array(sram.buffer.slice(0)));
+		return;
+	}
 	try {
 		var storage = globalThis.localStorage;
 		storage[this.SYS_ID + '.' + this.mmu.cart.code] = this.encodeBase64(sram.view);
@@ -353,6 +362,10 @@ GameBoyAdvance.prototype.storeSavedata = function() {
 };
 
 GameBoyAdvance.prototype.retrieveSavedata = function() {
+	if (this.onSavedata) {
+		// The page stores saves itself, and hands them back with setSavedata
+		return false;
+	}
 	try {
 		var storage = globalThis.localStorage;
 		var data = storage[this.SYS_ID + '.' + this.mmu.cart.code];

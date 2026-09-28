@@ -169,6 +169,10 @@ GameBoyAdvanceIO.prototype.defrost = function(frost) {
 	for (var i = 0; i <= this.BLDY; i += 2) {
 		this.store16(i, this.registers[i >> 1]);
 	}
+	// Nor do the memory wait states, which every access's timing hangs off.
+	// Applied directly rather than through store16, which would also redo the
+	// write's other effects.
+	this.cpu.mmu.adjustTimings(this.registers[this.WAITCNT >> 1]);
 };
 
 GameBoyAdvanceIO.prototype.load8 = function(offset) {

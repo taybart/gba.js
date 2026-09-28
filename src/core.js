@@ -205,7 +205,9 @@ ARMCore.prototype.freeze = function() {
 			this.bankedSPSRs[4],
 			this.bankedSPSRs[5]
 		],
-		'cycles': this.cycles
+		'cycles': this.cycles,
+		// ARM or Thumb: which instruction set the next fetch decodes
+		'execMode': this.execMode
 	};
 };
 
@@ -278,6 +280,9 @@ ARMCore.prototype.defrost = function(frost) {
 	this.bankedSPSRs[5] = frost.bankedSPSRs[5];
 
 	this.cycles = frost.cycles;
+	if (frost.execMode !== undefined) {
+		this.switchExecMode(frost.execMode);
+	}
 };
 
 ARMCore.prototype.fetchPage = function(address) {

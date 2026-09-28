@@ -205,14 +205,63 @@ GameBoyAdvanceAudio.prototype.clear = function() {
 	this.writeChannel4FC(0);
 };
 
+// Everything the sound hardware is doing, which a snapshot has to carry: the
+// FIFOs the DMAs feed, each channel's timers, and when the next event is due.
+// Without them a restored game's audio timeline starts over, and the DMAs and
+// interrupts timed off it drift from where the game left them. Not included:
+// the output side (context, worklet, buffers) and the page's own mute and
+// volume, which belong to the page rather than the game.
+var FROZEN_AUDIO = [
+	'enabled', 'fifoA', 'fifoB', 'fifoASample', 'fifoBSample',
+	'enableChannel3', 'enableChannel4', 'enableChannelA', 'enableChannelB',
+	'enableRightChannelA', 'enableLeftChannelA', 'enableRightChannelB', 'enableLeftChannelB',
+	'playingChannel3', 'playingChannel4', 'volumeLeft', 'volumeRight',
+	'ratioChannelA', 'ratioChannelB', 'enabledLeft', 'enabledRight',
+	'dmaA', 'dmaB', 'soundTimerA', 'soundTimerB', 'soundRatio', 'soundBias',
+	'squareChannels', 'waveData', 'channel3Dimension', 'channel3Bank', 'channel3Volume',
+	'channel3Interval', 'channel3Next', 'channel3Length', 'channel3Timed', 'channel3End',
+	'channel3Pointer', 'channel3Sample', 'channel3Write', 'channel4',
+	'nextEvent', 'nextSample', 'sampleInterval', 'masterVolumeLeft', 'masterVolumeRight'
+];
+
 GameBoyAdvanceAudio.prototype.freeze = function() {
-	return {
-		nextSample: this.nextSample
-	};
+	var frost = {};
+	for (var i = 0; i < FROZEN_AUDIO.length; ++i) {
+		var key = FROZEN_AUDIO[i];
+		var value = this[key];
+		if (value instanceof Uint8Array) {
+			frost[key] = value.slice();
+		} else if (value && typeof value === 'object') {
+			// Plain data all the way down (arrays of numbers, channel records)
+			frost[key] = JSON.parse(JSON.stringify(value));
+		} else {
+			frost[key] = value;
+		}
+	}
+	return frost;
 };
 
 GameBoyAdvanceAudio.prototype.defrost = function(frost) {
-	this.nextSample = frost.nextSample;
+	if (!('nextEvent' in frost)) {
+		// A snapshot from before the rest was kept
+		this.nextSample = frost.nextSample;
+		return;
+	}
+	for (var i = 0; i < FROZEN_AUDIO.length; ++i) {
+		var key = FROZEN_AUDIO[i];
+		if (!(key in frost)) {
+			continue;
+		}
+		var value = frost[key];
+		if (key === 'waveData') {
+			this.waveData = new Uint8Array(value);
+		} else if (value && typeof value === 'object') {
+			this[key] = JSON.parse(JSON.stringify(value));
+		} else {
+			this[key] = value;
+		}
+	}
+	this.updateOutput();
 };
 
 GameBoyAdvanceAudio.prototype.pause = function(paused) {
