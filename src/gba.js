@@ -78,9 +78,31 @@ function GameBoyAdvance(options) {
 	// localStorage, for pages that keep saves elsewhere; see storeSavedata
 	this.onSavedata = options.onSavedata || null;
 
+	// A frame is 280896 cycles at 2^24 Hz: 16.74ms, a touch over 59.7 a second
+	this.FRAME_MS = 280896 / 16777216 * 1000;
+	this.speed = 1;
+	this.nextFrameAt = 0;
+
 	var self = this;
+	var fixedThrottle = !!options.throttle;
 	this.queueFrame = function (f) {
-		self.queue = setTimeout(f, self.throttle);
+		if (fixedThrottle) {
+			self.queue = setTimeout(f, self.throttle);
+			return;
+		}
+		// Frames aim at a fixed schedule rather than a delay from now, so one
+		// late timer doesn't make every frame after it late too; left to drift,
+		// the game runs slow and its sound runs out. After a long stall (a
+		// hidden tab, a pause) the schedule starts over instead of racing to
+		// catch up.
+		var now = performance.now();
+		var interval = self.FRAME_MS / self.speed;
+		if (now - self.nextFrameAt > 100) {
+			self.nextFrameAt = now + interval;
+		} else {
+			self.nextFrameAt += interval;
+		}
+		self.queue = setTimeout(f, Math.max(0, self.nextFrameAt - now));
 	};
 
 	this.video.vblankCallback = function() {
@@ -477,7 +499,15 @@ GameBoyAdvance.prototype.release = function(button) {
 	this.keypad.release(button);
 };
 
+// Run `callback` whenever the game's code reaches `address`, as a cheat device
+// does for codes that have to land mid-routine (a value on the stack, say);
+// null clears it. One at a time.
+GameBoyAdvance.prototype.setHook = function(address, callback) {
+	this.cpu.setHook(address, callback);
+};
+
 GameBoyAdvance.prototype.setSpeed = function(multiplier) {
+	this.speed = multiplier;
 	this.throttle = Math.max(1, Math.floor(16 / multiplier));
 };
 

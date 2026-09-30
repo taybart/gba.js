@@ -1272,10 +1272,10 @@ F.prototype.constructTST = function(t, e) {
     s.cpsrN = r >> 31, s.cpsrZ = !(r & 4294967295);
   };
 };
-function P() {
+function T() {
   this.SP = 13, this.LR = 14, this.PC = 15, this.MODE_ARM = 0, this.MODE_THUMB = 1, this.MODE_USER = 16, this.MODE_FIQ = 17, this.MODE_IRQ = 18, this.MODE_SUPERVISOR = 19, this.MODE_ABORT = 23, this.MODE_UNDEFINED = 27, this.MODE_SYSTEM = 31, this.BANK_NONE = 0, this.BANK_FIQ = 1, this.BANK_IRQ = 2, this.BANK_SUPERVISOR = 3, this.BANK_ABORT = 4, this.BANK_UNDEFINED = 5, this.UNALLOC_MASK = 268435200, this.USER_MASK = 4026531840, this.PRIV_MASK = 207, this.STATE_MASK = 32, this.WORD_SIZE_ARM = 4, this.WORD_SIZE_THUMB = 2, this.BASE_RESET = 0, this.BASE_UNDEF = 4, this.BASE_SWI = 8, this.BASE_PABT = 12, this.BASE_DABT = 16, this.BASE_IRQ = 24, this.BASE_FIQ = 28, this.armCompiler = new d(this), this.thumbCompiler = new F(this), this.generateConds(), this.gprs = new Int32Array(16);
 }
-P.prototype.resetCPU = function(t) {
+T.prototype.resetCPU = function(t) {
   for (var e = 0; e < this.PC; ++e)
     this.gprs[e] = 0;
   this.gprs[this.PC] = t + this.WORD_SIZE_ARM, this.loadInstruction = this.loadInstructionArm, this.execMode = this.MODE_ARM, this.instructionWidth = this.WORD_SIZE_ARM, this.mode = this.MODE_SYSTEM, this.cpsrI = !1, this.cpsrF = !1, this.cpsrV = !1, this.cpsrC = !1, this.cpsrZ = !1, this.cpsrN = !1, this.bankedRegisters = [
@@ -1299,7 +1299,7 @@ P.prototype.resetCPU = function(t) {
     this.irq.updateTimers();
   };
 };
-P.prototype.freeze = function() {
+T.prototype.freeze = function() {
   return {
     gprs: [
       this.gprs[0],
@@ -1376,10 +1376,10 @@ P.prototype.freeze = function() {
     execMode: this.execMode
   };
 };
-P.prototype.defrost = function(t) {
+T.prototype.defrost = function(t) {
   this.instruction = null, this.page = null, this.pageId = 0, this.pageRegion = -1, this.gprs[0] = t.gprs[0], this.gprs[1] = t.gprs[1], this.gprs[2] = t.gprs[2], this.gprs[3] = t.gprs[3], this.gprs[4] = t.gprs[4], this.gprs[5] = t.gprs[5], this.gprs[6] = t.gprs[6], this.gprs[7] = t.gprs[7], this.gprs[8] = t.gprs[8], this.gprs[9] = t.gprs[9], this.gprs[10] = t.gprs[10], this.gprs[11] = t.gprs[11], this.gprs[12] = t.gprs[12], this.gprs[13] = t.gprs[13], this.gprs[14] = t.gprs[14], this.gprs[15] = t.gprs[15], this.mode = t.mode, this.cpsrI = t.cpsrI, this.cpsrF = t.cpsrF, this.cpsrV = t.cpsrV, this.cpsrC = t.cpsrC, this.cpsrZ = t.cpsrZ, this.cpsrN = t.cpsrN, this.bankedRegisters[0][0] = t.bankedRegisters[0][0], this.bankedRegisters[0][1] = t.bankedRegisters[0][1], this.bankedRegisters[0][2] = t.bankedRegisters[0][2], this.bankedRegisters[0][3] = t.bankedRegisters[0][3], this.bankedRegisters[0][4] = t.bankedRegisters[0][4], this.bankedRegisters[0][5] = t.bankedRegisters[0][5], this.bankedRegisters[0][6] = t.bankedRegisters[0][6], this.bankedRegisters[1][0] = t.bankedRegisters[1][0], this.bankedRegisters[1][1] = t.bankedRegisters[1][1], this.bankedRegisters[1][2] = t.bankedRegisters[1][2], this.bankedRegisters[1][3] = t.bankedRegisters[1][3], this.bankedRegisters[1][4] = t.bankedRegisters[1][4], this.bankedRegisters[1][5] = t.bankedRegisters[1][5], this.bankedRegisters[1][6] = t.bankedRegisters[1][6], this.bankedRegisters[2][0] = t.bankedRegisters[2][0], this.bankedRegisters[2][1] = t.bankedRegisters[2][1], this.bankedRegisters[3][0] = t.bankedRegisters[3][0], this.bankedRegisters[3][1] = t.bankedRegisters[3][1], this.bankedRegisters[4][0] = t.bankedRegisters[4][0], this.bankedRegisters[4][1] = t.bankedRegisters[4][1], this.bankedRegisters[5][0] = t.bankedRegisters[5][0], this.bankedRegisters[5][1] = t.bankedRegisters[5][1], this.spsr = t.spsr, this.bankedSPSRs[0] = t.bankedSPSRs[0], this.bankedSPSRs[1] = t.bankedSPSRs[1], this.bankedSPSRs[2] = t.bankedSPSRs[2], this.bankedSPSRs[3] = t.bankedSPSRs[3], this.bankedSPSRs[4] = t.bankedSPSRs[4], this.bankedSPSRs[5] = t.bankedSPSRs[5], this.cycles = t.cycles, t.execMode !== void 0 && this.switchExecMode(t.execMode);
 };
-P.prototype.fetchPage = function(t) {
+T.prototype.fetchPage = function(t) {
   var e = t >> this.mmu.BASE_OFFSET, s = this.mmu.addressToPage(e, t & this.mmu.OFFSET_MASK);
   if (e == this.pageRegion) {
     if (s == this.pageId && !this.page.invalid)
@@ -1389,25 +1389,44 @@ P.prototype.fetchPage = function(t) {
     this.pageMask = this.mmu.memory[e].PAGE_MASK, this.pageRegion = e, this.pageId = s;
   this.page = this.mmu.accessPage(e, s);
 };
-P.prototype.loadInstructionArm = function(t) {
+T.prototype.loadInstructionArm = function(t) {
   var e = null;
   this.fetchPage(t);
   var s = (t & this.pageMask) >> 2;
   if (e = this.page.arm[s], e)
     return e;
   var i = this.mmu.load32(t) >>> 0;
-  return e = this.compileArm(i), e.next = null, e.page = this.page, e.address = t, e.opcode = i, this.page.arm[s] = e, e;
+  return e = this.compileArm(i), this.hook && this.hook.address === t && (e = this.withHook(e)), e.next = null, e.page = this.page, e.address = t, e.opcode = i, this.page.arm[s] = e, e;
 };
-P.prototype.loadInstructionThumb = function(t) {
+T.prototype.loadInstructionThumb = function(t) {
   var e = null;
   this.fetchPage(t);
   var s = (t & this.pageMask) >> 1;
   if (e = this.page.thumb[s], e)
     return e;
   var i = this.mmu.load16(t);
-  return e = this.compileThumb(i), e.next = null, e.page = this.page, e.address = t, e.opcode = i, this.page.thumb[s] = e, e;
+  return e = this.compileThumb(i), this.hook && this.hook.address === t && (e = this.withHook(e)), e.next = null, e.page = this.page, e.address = t, e.opcode = i, this.page.thumb[s] = e, e;
 };
-P.prototype.selectBank = function(t) {
+T.prototype.setHook = function(t, e) {
+  var s = this.hook;
+  this.hook = t === null ? null : { address: t >>> 0, callback: e }, s && this.dropCachedPage(s.address), this.hook && this.dropCachedPage(this.hook.address);
+};
+T.prototype.dropCachedPage = function(t) {
+  var e = t >>> this.mmu.BASE_OFFSET, s = this.mmu.memory[e];
+  if (!(!s || !s.icache)) {
+    var i = s.icache[this.mmu.addressToPage(e, t & this.mmu.OFFSET_MASK)];
+    i && (i.invalid = !0);
+  }
+};
+T.prototype.withHook = function(t) {
+  var e = this.hook, s = function() {
+    e.callback(), t();
+  };
+  for (var i in t)
+    s[i] = t[i];
+  return s;
+};
+T.prototype.selectBank = function(t) {
   switch (t) {
     case this.MODE_USER:
     case this.MODE_SYSTEM:
@@ -1426,10 +1445,10 @@ P.prototype.selectBank = function(t) {
       throw "Invalid user mode passed to selectBank";
   }
 };
-P.prototype.switchExecMode = function(t) {
+T.prototype.switchExecMode = function(t) {
   this.execMode != t && (this.execMode = t, t == this.MODE_ARM ? (this.instructionWidth = this.WORD_SIZE_ARM, this.loadInstruction = this.loadInstructionArm) : (this.instructionWidth = this.WORD_SIZE_THUMB, this.loadInstruction = this.loadInstructionThumb));
 };
-P.prototype.switchMode = function(t) {
+T.prototype.switchMode = function(t) {
   if (t != this.mode) {
     if (t != this.MODE_USER || t != this.MODE_SYSTEM) {
       var e = this.selectBank(t), s = this.selectBank(this.mode);
@@ -1444,32 +1463,32 @@ P.prototype.switchMode = function(t) {
     this.mode = t;
   }
 };
-P.prototype.packCPSR = function() {
+T.prototype.packCPSR = function() {
   return this.mode | !!this.execMode << 5 | !!this.cpsrF << 6 | !!this.cpsrI << 7 | !!this.cpsrN << 31 | !!this.cpsrZ << 30 | !!this.cpsrC << 29 | !!this.cpsrV << 28;
 };
-P.prototype.unpackCPSR = function(t) {
+T.prototype.unpackCPSR = function(t) {
   this.switchMode(t & 31), this.switchExecMode(!!(t & 32)), this.cpsrF = t & 64, this.cpsrI = t & 128, this.cpsrN = t & 2147483648, this.cpsrZ = t & 1073741824, this.cpsrC = t & 536870912, this.cpsrV = t & 268435456, this.irq.testIRQ();
 };
-P.prototype.hasSPSR = function() {
+T.prototype.hasSPSR = function() {
   return this.mode != this.MODE_SYSTEM && this.mode != this.MODE_USER;
 };
-P.prototype.raiseIRQ = function() {
+T.prototype.raiseIRQ = function() {
   if (!this.cpsrI) {
     var t = this.packCPSR(), e = this.instructionWidth;
     this.switchMode(this.MODE_IRQ), this.spsr = t, this.gprs[this.LR] = this.gprs[this.PC] - e + 4, this.gprs[this.PC] = this.BASE_IRQ + this.WORD_SIZE_ARM, this.instruction = null, this.switchExecMode(this.MODE_ARM), this.cpsrI = !0;
   }
 };
-P.prototype.raiseTrap = function() {
+T.prototype.raiseTrap = function() {
   var t = this.packCPSR(), e = this.instructionWidth;
   this.switchMode(this.MODE_SUPERVISOR), this.spsr = t, this.gprs[this.LR] = this.gprs[this.PC] - e, this.gprs[this.PC] = this.BASE_SWI + this.WORD_SIZE_ARM, this.instruction = null, this.switchExecMode(this.MODE_ARM), this.cpsrI = !0;
 };
-P.prototype.badOp = function(t) {
+T.prototype.badOp = function(t) {
   var e = function() {
     throw "Illegal instruction: 0x" + t.toString(16);
   };
   return e.writesPC = !0, e.fixedJump = !1, e;
 };
-P.prototype.generateConds = function() {
+T.prototype.generateConds = function() {
   var t = this;
   this.conds = [
     // EQ
@@ -1533,7 +1552,7 @@ P.prototype.generateConds = function() {
     null
   ];
 };
-P.prototype.barrelShiftImmediate = function(t, e, s) {
+T.prototype.barrelShiftImmediate = function(t, e, s) {
   var i = this, r = this.gprs, a = this.badOp;
   switch (t) {
     case 0:
@@ -1567,7 +1586,7 @@ P.prototype.barrelShiftImmediate = function(t, e, s) {
   }
   return a;
 };
-P.prototype.compileArm = function(t) {
+T.prototype.compileArm = function(t) {
   var e = this.badOp(t), s = t & 234881024;
   this.gprs;
   var i = this.conds[(t & 4026531840) >>> 28];
@@ -1712,9 +1731,9 @@ P.prototype.compileArm = function(t) {
           }
           e.writesPC = c == this.PC;
         } else {
-          var G = t & 1048576, c = (t & 61440) >> 12, v = (t & 3840) >> 4, E = r = t & 15, _ = t & 32, h = t & 64, C = t & 2097152, s = t & 4194304, R;
+          var G = t & 1048576, c = (t & 61440) >> 12, v = (t & 3840) >> 4, I = r = t & 15, _ = t & 32, h = t & 64, C = t & 2097152, s = t & 4194304, R;
           if (s) {
-            var o = E | v;
+            var o = I | v;
             R = this.armCompiler.constructAddressingMode23Immediate(t, o, i);
           } else
             R = this.armCompiler.constructAddressingMode23Register(t, r, i);
@@ -1723,34 +1742,34 @@ P.prototype.compileArm = function(t) {
         break;
       case 67108864:
       case 100663296:
-        var c = (t & 61440) >> 12, G = t & 1048576, y = t & 4194304, s = t & 33554432, R = function() {
+        var c = (t & 61440) >> 12, G = t & 1048576, O = t & 4194304, s = t & 33554432, R = function() {
           throw "Unimplemented memory access: 0x" + t.toString(16);
         };
         if (~t & 16777216 && (t &= 4292870143), s) {
-          var r = t & 15, f = t & 96, q = (t & 3968) >> 7;
-          if (f || q) {
-            var l = this.barrelShiftImmediate(f, q, r);
+          var r = t & 15, f = t & 96, Q = (t & 3968) >> 7;
+          if (f || Q) {
+            var l = this.barrelShiftImmediate(f, Q, r);
             R = this.armCompiler.constructAddressingMode2RegisterShifted(t, l, i);
           } else
             R = this.armCompiler.constructAddressingMode23Register(t, r, i);
         } else {
-          var T = t & 4095;
-          R = this.armCompiler.constructAddressingMode23Immediate(t, T, i);
+          var P = t & 4095;
+          R = this.armCompiler.constructAddressingMode23Immediate(t, P, i);
         }
-        G ? y ? e = this.armCompiler.constructLDRB(c, R, i) : e = this.armCompiler.constructLDR(c, R, i) : y ? e = this.armCompiler.constructSTRB(c, R, i) : e = this.armCompiler.constructSTR(c, R, i), e.writesPC = c == this.PC || R.writesPC;
+        G ? O ? e = this.armCompiler.constructLDRB(c, R, i) : e = this.armCompiler.constructLDR(c, R, i) : O ? e = this.armCompiler.constructSTRB(c, R, i) : e = this.armCompiler.constructSTR(c, R, i), e.writesPC = c == this.PC || R.writesPC;
         break;
       case 134217728:
-        var G = t & 1048576, C = t & 2097152, N = t & 4194304, D = t & 8388608, H = t & 16777216, m = t & 65535, p = (t & 983040) >> 16, R, o = 0, T = 0, Z = !1;
+        var G = t & 1048576, C = t & 2097152, N = t & 4194304, D = t & 8388608, H = t & 16777216, m = t & 65535, p = (t & 983040) >> 16, R, o = 0, P = 0, X = !1;
         if (D) {
           H && (o = 4);
           for (var M = 1, s = 0; s < 16; M <<= 1, ++s)
-            m & M && (C && s == p && !T && (m &= ~M, o += 4, Z = !0), T += 4);
+            m & M && (C && s == p && !P && (m &= ~M, o += 4, X = !0), P += 4);
         } else {
           H || (o = 4);
           for (var M = 1, s = 0; s < 16; M <<= 1, ++s)
-            m & M && (C && s == p && !T && (m &= ~M, o += 4, Z = !0), o -= 4, T -= 4);
+            m & M && (C && s == p && !P && (m &= ~M, o += 4, X = !0), o -= 4, P -= 4);
         }
-        C ? R = this.armCompiler.constructAddressingMode4Writeback(o, T, p, Z) : R = this.armCompiler.constructAddressingMode4(o, p), G ? (N ? e = this.armCompiler.constructLDMS(m, R, i) : e = this.armCompiler.constructLDM(m, R, i), e.writesPC = !!(m & 32768)) : (N ? e = this.armCompiler.constructSTMS(m, R, i) : e = this.armCompiler.constructSTM(m, R, i), e.writesPC = !1);
+        C ? R = this.armCompiler.constructAddressingMode4Writeback(o, P, p, X) : R = this.armCompiler.constructAddressingMode4(o, p), G ? (N ? e = this.armCompiler.constructLDMS(m, R, i) : e = this.armCompiler.constructLDM(m, R, i), e.writesPC = !!(m & 32768)) : (N ? e = this.armCompiler.constructSTMS(m, R, i) : e = this.armCompiler.constructSTM(m, R, i), e.writesPC = !1);
         break;
       case 167772160:
         var o = t & 16777215;
@@ -1771,7 +1790,7 @@ P.prototype.compileArm = function(t) {
     }
   return e.execMode = this.MODE_ARM, e.fixedJump = e.fixedJump || !1, e;
 };
-P.prototype.compileThumb = function(t) {
+T.prototype.compileThumb = function(t) {
   var e = this.badOp(t & 65535);
   if (this.gprs, (t & 64512) == 16384) {
     var s = (t & 56) >> 3, i = t & 7;
@@ -2645,7 +2664,7 @@ b.prototype.serviceDma = function(t, e) {
   if (e.enable) {
     var s = e.width, i = this.DMA_OFFSET[e.srcControl] * s, r = this.DMA_OFFSET[e.dstControl] * s, a = e.nextCount, h = e.nextSource & this.OFFSET_MASK, n = e.nextDest & this.OFFSET_MASK, o = e.nextSource >>> this.BASE_OFFSET, u = e.nextDest >>> this.BASE_OFFSET, c = this.memory[o], p = this.memory[u], f = null, l = null, x = 4294967295, m = 4294967295, v;
     if (p.ICACHE_PAGE_BITS)
-      for (var E = n + a * s >> p.ICACHE_PAGE_BITS, _ = n >> p.ICACHE_PAGE_BITS; _ <= E; ++_)
+      for (var I = n + a * s >> p.ICACHE_PAGE_BITS, _ = n >> p.ICACHE_PAGE_BITS; _ <= I; ++_)
         p.invalidatePage(_ << p.ICACHE_PAGE_BITS);
     if ((u == this.REGION_WORKING_RAM || u == this.REGION_WORKING_IRAM) && (l = p.view, m = p.mask), (o == this.REGION_WORKING_RAM || o == this.REGION_WORKING_IRAM || o == this.REGION_CART0 || o == this.REGION_CART1) && (f = c.view, x = c.mask), c && p)
       if (f && l)
@@ -2674,8 +2693,8 @@ b.prototype.serviceDma = function(t, e) {
       e.nextCount = e.count, e.dstControl == this.DMA_INCREMENT_RELOAD && (e.nextDest = e.dest), this.scheduleDma(t, e);
     else {
       e.enable = !1;
-      var y = this.memory[this.REGION_IO];
-      y.registers[this.DMA_REGISTER[t]] &= 32736;
+      var O = this.memory[this.REGION_IO];
+      O.registers[this.DMA_REGISTER[t]] &= 32736;
     }
   }
 };
@@ -2692,10 +2711,10 @@ b.prototype.flushSave = function() {
 b.prototype.allocGPIO = function(t) {
   return new ht(this.core, t);
 };
-function I() {
+function E() {
   this.FREQUENCY = 16777216, this.cpu = null, this.enable = !1, this.IRQ_VBLANK = 0, this.IRQ_HBLANK = 1, this.IRQ_VCOUNTER = 2, this.IRQ_TIMER0 = 3, this.IRQ_TIMER1 = 4, this.IRQ_TIMER2 = 5, this.IRQ_TIMER3 = 6, this.IRQ_SIO = 7, this.IRQ_DMA0 = 8, this.IRQ_DMA1 = 9, this.IRQ_DMA2 = 10, this.IRQ_DMA3 = 11, this.IRQ_KEYPAD = 12, this.IRQ_GAMEPAK = 13, this.MASK_VBLANK = 1, this.MASK_HBLANK = 2, this.MASK_VCOUNTER = 4, this.MASK_TIMER0 = 8, this.MASK_TIMER1 = 16, this.MASK_TIMER2 = 32, this.MASK_TIMER3 = 64, this.MASK_SIO = 128, this.MASK_DMA0 = 256, this.MASK_DMA1 = 512, this.MASK_DMA2 = 1024, this.MASK_DMA3 = 2048, this.MASK_KEYPAD = 4096, this.MASK_GAMEPAK = 8192;
 }
-I.prototype.clear = function() {
+E.prototype.clear = function() {
   this.enable = !1, this.enabledIRQs = 0, this.interruptFlags = 0, this.dma = new Array();
   for (var t = 0; t < 4; ++t)
     this.dma.push({
@@ -2730,7 +2749,7 @@ I.prototype.clear = function() {
     });
   this.nextEvent = 0, this.springIRQ = !1, this.resetSP();
 };
-I.prototype.freeze = function() {
+E.prototype.freeze = function() {
   return {
     enable: this.enable,
     enabledIRQs: this.enabledIRQs,
@@ -2741,10 +2760,10 @@ I.prototype.freeze = function() {
     springIRQ: this.springIRQ
   };
 };
-I.prototype.defrost = function(t) {
+E.prototype.defrost = function(t) {
   this.enable = t.enable, this.enabledIRQs = t.enabledIRQs, this.interruptFlags = t.interruptFlags, this.dma = t.dma, this.timers = t.timers, this.timersEnabled = 0, this.timers[0].enable && ++this.timersEnabled, this.timers[1].enable && ++this.timersEnabled, this.timers[2].enable && ++this.timersEnabled, this.timers[3].enable && ++this.timersEnabled, this.nextEvent = t.nextEvent, this.springIRQ = t.springIRQ;
 };
-I.prototype.updateTimers = function() {
+E.prototype.updateTimers = function() {
   if (!(this.nextEvent > this.cpu.cycles)) {
     if (this.springIRQ && (this.cpu.raiseIRQ(), this.springIRQ = !1), this.video.updateTimers(this.cpu), this.audio.updateTimers(), this.timersEnabled) {
       var t = this.timers[0];
@@ -2754,13 +2773,13 @@ I.prototype.updateTimers = function() {
     e.enable && e.doIrq && e.nextIRQ && this.cpu.cycles >= e.nextIRQ && (e.nextIRQ = 0, this.raiseIRQ(this.IRQ_DMA0)), e = this.dma[1], e.enable && e.doIrq && e.nextIRQ && this.cpu.cycles >= e.nextIRQ && (e.nextIRQ = 0, this.raiseIRQ(this.IRQ_DMA1)), e = this.dma[2], e.enable && e.doIrq && e.nextIRQ && this.cpu.cycles >= e.nextIRQ && (e.nextIRQ = 0, this.raiseIRQ(this.IRQ_DMA2)), e = this.dma[3], e.enable && e.doIrq && e.nextIRQ && this.cpu.cycles >= e.nextIRQ && (e.nextIRQ = 0, this.raiseIRQ(this.IRQ_DMA3)), this.pollNextEvent();
   }
 };
-I.prototype.resetSP = function() {
+E.prototype.resetSP = function() {
   this.cpu.switchMode(this.cpu.MODE_SUPERVISOR), this.cpu.gprs[this.cpu.SP] = 50364384, this.cpu.switchMode(this.cpu.MODE_IRQ), this.cpu.gprs[this.cpu.SP] = 50364320, this.cpu.switchMode(this.cpu.MODE_SYSTEM), this.cpu.gprs[this.cpu.SP] = 50364160;
 };
-I.prototype.swi32 = function(t) {
+E.prototype.swi32 = function(t) {
   this.swi(t >> 16);
 };
-I.prototype.swi = function(t) {
+E.prototype.swi = function(t) {
   if (this.core.mmu.bios.real) {
     this.cpu.raiseTrap();
     return;
@@ -2844,12 +2863,12 @@ I.prototype.swi = function(t) {
         }
       return;
     case 14:
-      for (var C = this.cpu.gprs[2], v, E, _, y, N, D, H, R = this.cpu.gprs[0], T = this.cpu.gprs[1], M, W, X, j, q, G; C--; )
-        v = this.core.mmu.load32(R) / 256, E = this.core.mmu.load32(R + 4) / 256, _ = this.core.mmu.load16(R + 8), y = this.core.mmu.load16(R + 10), N = this.core.mmu.load16(R + 12) / 256, D = this.core.mmu.load16(R + 14) / 256, H = (this.core.mmu.loadU16(R + 16) >> 8) / 128 * Math.PI, R += 20, M = j = Math.cos(H), W = X = Math.sin(H), M *= N, W *= -N, X *= D, j *= D, q = v - (M * _ + W * y), G = E - (X * _ + j * y), this.core.mmu.store16(T, M * 256 | 0), this.core.mmu.store16(T + 2, W * 256 | 0), this.core.mmu.store16(T + 4, X * 256 | 0), this.core.mmu.store16(T + 6, j * 256 | 0), this.core.mmu.store32(T + 8, q * 256 | 0), this.core.mmu.store32(T + 12, G * 256 | 0), T += 16;
+      for (var C = this.cpu.gprs[2], v, I, _, O, N, D, H, R = this.cpu.gprs[0], P = this.cpu.gprs[1], M, W, Z, j, Q, G; C--; )
+        v = this.core.mmu.load32(R) / 256, I = this.core.mmu.load32(R + 4) / 256, _ = this.core.mmu.load16(R + 8), O = this.core.mmu.load16(R + 10), N = this.core.mmu.load16(R + 12) / 256, D = this.core.mmu.load16(R + 14) / 256, H = (this.core.mmu.loadU16(R + 16) >> 8) / 128 * Math.PI, R += 20, M = j = Math.cos(H), W = Z = Math.sin(H), M *= N, W *= -N, Z *= D, j *= D, Q = v - (M * _ + W * O), G = I - (Z * _ + j * O), this.core.mmu.store16(P, M * 256 | 0), this.core.mmu.store16(P + 2, W * 256 | 0), this.core.mmu.store16(P + 4, Z * 256 | 0), this.core.mmu.store16(P + 6, j * 256 | 0), this.core.mmu.store32(P + 8, Q * 256 | 0), this.core.mmu.store32(P + 12, G * 256 | 0), P += 16;
       break;
     case 15:
-      for (var C = this.cpu.gprs[2], N, D, H, R = this.cpu.gprs[0], T = this.cpu.gprs[1], Z = this.cpu.gprs[3], M, W, X, j; C--; )
-        N = this.core.mmu.load16(R) / 256, D = this.core.mmu.load16(R + 2) / 256, H = (this.core.mmu.loadU16(R + 4) >> 8) / 128 * Math.PI, R += 6, M = j = Math.cos(H), W = X = Math.sin(H), M *= N, W *= -N, X *= D, j *= D, this.core.mmu.store16(T, M * 256 | 0), this.core.mmu.store16(T + Z, W * 256 | 0), this.core.mmu.store16(T + Z * 2, X * 256 | 0), this.core.mmu.store16(T + Z * 3, j * 256 | 0), T += Z * 4;
+      for (var C = this.cpu.gprs[2], N, D, H, R = this.cpu.gprs[0], P = this.cpu.gprs[1], X = this.cpu.gprs[3], M, W, Z, j; C--; )
+        N = this.core.mmu.load16(R) / 256, D = this.core.mmu.load16(R + 2) / 256, H = (this.core.mmu.loadU16(R + 4) >> 8) / 128 * Math.PI, R += 6, M = j = Math.cos(H), W = Z = Math.sin(H), M *= N, W *= -N, Z *= D, j *= D, this.core.mmu.store16(P, M * 256 | 0), this.core.mmu.store16(P + X, W * 256 | 0), this.core.mmu.store16(P + X * 2, Z * 256 | 0), this.core.mmu.store16(P + X * 3, j * 256 | 0), P += X * 4;
       break;
     case 17:
       this.lz77(this.cpu.gprs[0], this.cpu.gprs[1], 1);
@@ -2874,13 +2893,13 @@ I.prototype.swi = function(t) {
       throw "Unimplemented software interrupt: 0x" + t.toString(16);
   }
 };
-I.prototype.masterEnable = function(t) {
+E.prototype.masterEnable = function(t) {
   this.enable = t, this.enable && this.enabledIRQs & this.interruptFlags && this.cpu.raiseIRQ();
 };
-I.prototype.setInterruptsEnabled = function(t) {
+E.prototype.setInterruptsEnabled = function(t) {
   this.enabledIRQs = t, this.enabledIRQs & this.MASK_SIO && this.core.STUB("Serial I/O interrupts not implemented"), this.enabledIRQs & this.MASK_KEYPAD && this.core.STUB("Keypad interrupts not implemented"), this.enable && this.enabledIRQs & this.interruptFlags && this.cpu.raiseIRQ();
 };
-I.prototype.pollNextEvent = function() {
+E.prototype.pollNextEvent = function() {
   var t = this.video.nextEvent, e;
   if (this.audio.enabled && (e = this.audio.nextEvent, (!t || e < t) && (t = e)), this.timersEnabled) {
     var s = this.timers[0];
@@ -2889,7 +2908,7 @@ I.prototype.pollNextEvent = function() {
   var i = this.dma[0];
   e = i.nextIRQ, i.enable && i.doIrq && e && (!t || e < t) && (t = e), i = this.dma[1], e = i.nextIRQ, i.enable && i.doIrq && e && (!t || e < t) && (t = e), i = this.dma[2], e = i.nextIRQ, i.enable && i.doIrq && e && (!t || e < t) && (t = e), i = this.dma[3], e = i.nextIRQ, i.enable && i.doIrq && e && (!t || e < t) && (t = e), this.core.ASSERT(t >= this.cpu.cycles, "Next event is before present"), this.nextEvent = t;
 };
-I.prototype.waitForIRQ = function() {
+E.prototype.waitForIRQ = function() {
   var t, e = this.testIRQ() || this.video.hblankIRQ || this.video.vblankIRQ || this.video.vcounterIRQ;
   if (this.timersEnabled && (t = this.timers[0], e = e || t.doIrq, t = this.timers[1], e = e || t.doIrq, t = this.timers[2], e = e || t.doIrq, t = this.timers[3], e = e || t.doIrq), !e)
     return !1;
@@ -2900,32 +2919,32 @@ I.prototype.waitForIRQ = function() {
     } else
       return !1;
 };
-I.prototype.testIRQ = function() {
+E.prototype.testIRQ = function() {
   return this.enable && this.enabledIRQs & this.interruptFlags ? (this.springIRQ = !0, this.nextEvent = this.cpu.cycles, !0) : !1;
 };
-I.prototype.raiseIRQ = function(t) {
+E.prototype.raiseIRQ = function(t) {
   this.interruptFlags |= 1 << t, this.io.registers[this.io.IF >> 1] = this.interruptFlags, this.enable && this.enabledIRQs & 1 << t && this.cpu.raiseIRQ();
 };
-I.prototype.dismissIRQs = function(t) {
+E.prototype.dismissIRQs = function(t) {
   this.interruptFlags &= ~t, this.io.registers[this.io.IF >> 1] = this.interruptFlags;
 };
-I.prototype.dmaSetSourceAddress = function(t, e) {
+E.prototype.dmaSetSourceAddress = function(t, e) {
   this.dma[t].source = e & 4294967294;
 };
-I.prototype.dmaSetDestAddress = function(t, e) {
+E.prototype.dmaSetDestAddress = function(t, e) {
   this.dma[t].dest = e & 4294967294;
 };
-I.prototype.dmaSetWordCount = function(t, e) {
+E.prototype.dmaSetWordCount = function(t, e) {
   this.dma[t].count = e || (t == 3 ? 65536 : 16384);
 };
-I.prototype.dmaWriteControl = function(t, e) {
+E.prototype.dmaWriteControl = function(t, e) {
   var s = this.dma[t], i = s.enable;
   s.dstControl = (e & 96) >> 5, s.srcControl = (e & 384) >> 7, s.repeat = !!(e & 512), s.width = e & 1024 ? 4 : 2, s.drq = !!(e & 2048), s.timing = (e & 12288) >> 12, s.doIrq = !!(e & 16384), s.enable = !!(e & 32768), s.nextIRQ = 0, s.drq && this.core.WARN("DRQ not implemented"), !i && s.enable && (s.nextSource = s.source, s.nextDest = s.dest, s.nextCount = s.count, this.cpu.mmu.scheduleDma(t, s));
 };
-I.prototype.timerSetReload = function(t, e) {
+E.prototype.timerSetReload = function(t, e) {
   this.timers[t].reload = e & 65535;
 };
-I.prototype.timerWriteControl = function(t, e) {
+E.prototype.timerWriteControl = function(t, e) {
   var s = this.timers[t], i = s.prescaleBits;
   switch (e & 3) {
     case 0:
@@ -2945,17 +2964,17 @@ I.prototype.timerWriteControl = function(t, e) {
   var r = s.enable;
   s.enable = !!((e & 128) >> 7 << t), !r && s.enable ? (s.countUp ? s.nextEvent = 0 : (s.lastEvent = this.cpu.cycles, s.nextEvent = this.cpu.cycles + s.overflowInterval), this.io.registers[this.io.TM0CNT_LO + (t << 2) >> 1] = s.reload, s.oldReload = s.reload, ++this.timersEnabled) : r && !s.enable ? (s.countUp || (this.io.registers[this.io.TM0CNT_LO + (t << 2) >> 1] = s.oldReload + (this.cpu.cycles - s.lastEvent) >> i), --this.timersEnabled) : s.prescaleBits != i && !s.countUp && (s.nextEvent = s.lastEvent + s.overflowInterval), this.pollNextEvent();
 };
-I.prototype.timerRead = function(t) {
+E.prototype.timerRead = function(t) {
   var e = this.timers[t];
   return e.enable && !e.countUp ? e.oldReload + (this.cpu.cycles - e.lastEvent) >> e.prescaleBits : this.io.registers[this.io.TM0CNT_LO + (t << 2) >> 1];
 };
-I.prototype.halt = function() {
+E.prototype.halt = function() {
   if (!this.enable)
     throw "Requested HALT when interrupts were disabled!";
   if (!this.waitForIRQ())
     throw "Waiting on interrupt forever.";
 };
-I.prototype.lz77 = function(t, e, s) {
+E.prototype.lz77 = function(t, e, s) {
   for (var i = (this.cpu.mmu.load32(t) & 4294967040) >> 8, r, a = t + 4, h = e, n = 0, o, u, c, p = 0, f; i > 0; )
     if (n) {
       if (r & 128)
@@ -2967,7 +2986,7 @@ I.prototype.lz77 = function(t, e, s) {
     } else
       r = this.cpu.mmu.loadU8(a++), n = 8;
 };
-I.prototype.huffman = function(t, e) {
+E.prototype.huffman = function(t, e) {
   t = t & 4294967292;
   var s = this.cpu.mmu.load32(t), i = s >> 8, r = s & 15;
   if (32 % r)
@@ -2979,8 +2998,8 @@ I.prototype.huffman = function(t, e) {
     h.push(this.cpu.mmu.loadU8(t + 5 + p));
   var f, l = 0, x, m, v = 0;
   for (f = h[0]; i > 0; ) {
-    var E = this.cpu.mmu.load32(u);
-    for (u += 4, x = 32; x > 0; --x, E <<= 1) {
+    var I = this.cpu.mmu.load32(u);
+    for (u += 4, x = 32; x > 0; --x, I <<= 1) {
       if (typeof f == "number") {
         var _ = (l - 1 | 1) + ((f & 63) << 1) + 2;
         f = {
@@ -2990,7 +3009,7 @@ I.prototype.huffman = function(t, e) {
           rTerm: f & 64
         }, h[l] = f;
       }
-      if (E & 2147483648)
+      if (I & 2147483648)
         if (f.rTerm)
           m = h[f.r];
         else {
@@ -3008,7 +3027,7 @@ I.prototype.huffman = function(t, e) {
   }
   a && this.cpu.mmu.store32(c, o);
 };
-I.prototype.rl = function(t, e, s) {
+E.prototype.rl = function(t, e, s) {
   t = t & 4294967292;
   for (var i = (this.cpu.mmu.load32(t) & 4294967040) >> 8, r = 4 - i & 3, a, h, n = t + 4, o = e, u = 0; i > 0; )
     if (a = this.cpu.mmu.loadU8(n++), a & 128)
@@ -3020,30 +3039,30 @@ I.prototype.rl = function(t, e, s) {
   for (; r--; )
     this.cpu.mmu.store8(o++, 0);
 };
-function k() {
+function L() {
   this.DISPCNT = 0, this.GREENSWP = 2, this.DISPSTAT = 4, this.VCOUNT = 6, this.BG0CNT = 8, this.BG1CNT = 10, this.BG2CNT = 12, this.BG3CNT = 14, this.BG0HOFS = 16, this.BG0VOFS = 18, this.BG1HOFS = 20, this.BG1VOFS = 22, this.BG2HOFS = 24, this.BG2VOFS = 26, this.BG3HOFS = 28, this.BG3VOFS = 30, this.BG2PA = 32, this.BG2PB = 34, this.BG2PC = 36, this.BG2PD = 38, this.BG2X_LO = 40, this.BG2X_HI = 42, this.BG2Y_LO = 44, this.BG2Y_HI = 46, this.BG3PA = 48, this.BG3PB = 50, this.BG3PC = 52, this.BG3PD = 54, this.BG3X_LO = 56, this.BG3X_HI = 58, this.BG3Y_LO = 60, this.BG3Y_HI = 62, this.WIN0H = 64, this.WIN1H = 66, this.WIN0V = 68, this.WIN1V = 70, this.WININ = 72, this.WINOUT = 74, this.MOSAIC = 76, this.BLDCNT = 80, this.BLDALPHA = 82, this.BLDY = 84, this.SOUND1CNT_LO = 96, this.SOUND1CNT_HI = 98, this.SOUND1CNT_X = 100, this.SOUND2CNT_LO = 104, this.SOUND2CNT_HI = 108, this.SOUND3CNT_LO = 112, this.SOUND3CNT_HI = 114, this.SOUND3CNT_X = 116, this.SOUND4CNT_LO = 120, this.SOUND4CNT_HI = 124, this.SOUNDCNT_LO = 128, this.SOUNDCNT_HI = 130, this.SOUNDCNT_X = 132, this.SOUNDBIAS = 136, this.WAVE_RAM0_LO = 144, this.WAVE_RAM0_HI = 146, this.WAVE_RAM1_LO = 148, this.WAVE_RAM1_HI = 150, this.WAVE_RAM2_LO = 152, this.WAVE_RAM2_HI = 154, this.WAVE_RAM3_LO = 156, this.WAVE_RAM3_HI = 158, this.FIFO_A_LO = 160, this.FIFO_A_HI = 162, this.FIFO_B_LO = 164, this.FIFO_B_HI = 166, this.DMA0SAD_LO = 176, this.DMA0SAD_HI = 178, this.DMA0DAD_LO = 180, this.DMA0DAD_HI = 182, this.DMA0CNT_LO = 184, this.DMA0CNT_HI = 186, this.DMA1SAD_LO = 188, this.DMA1SAD_HI = 190, this.DMA1DAD_LO = 192, this.DMA1DAD_HI = 194, this.DMA1CNT_LO = 196, this.DMA1CNT_HI = 198, this.DMA2SAD_LO = 200, this.DMA2SAD_HI = 202, this.DMA2DAD_LO = 204, this.DMA2DAD_HI = 206, this.DMA2CNT_LO = 208, this.DMA2CNT_HI = 210, this.DMA3SAD_LO = 212, this.DMA3SAD_HI = 214, this.DMA3DAD_LO = 216, this.DMA3DAD_HI = 218, this.DMA3CNT_LO = 220, this.DMA3CNT_HI = 222, this.TM0CNT_LO = 256, this.TM0CNT_HI = 258, this.TM1CNT_LO = 260, this.TM1CNT_HI = 262, this.TM2CNT_LO = 264, this.TM2CNT_HI = 266, this.TM3CNT_LO = 268, this.TM3CNT_HI = 270, this.SIODATA32_LO = 288, this.SIOMULTI0 = 288, this.SIODATA32_HI = 290, this.SIOMULTI1 = 290, this.SIOMULTI2 = 292, this.SIOMULTI3 = 294, this.SIOCNT = 296, this.SIOMLT_SEND = 298, this.SIODATA8 = 298, this.RCNT = 308, this.JOYCNT = 320, this.JOY_RECV = 336, this.JOY_TRANS = 340, this.JOYSTAT = 344, this.KEYINPUT = 304, this.KEYCNT = 306, this.IE = 512, this.IF = 514, this.WAITCNT = 516, this.IME = 520, this.POSTFLG = 768, this.HALTCNT = 769, this.DEFAULT_DISPCNT = 128, this.DEFAULT_SOUNDBIAS = 512, this.DEFAULT_BGPA = 1, this.DEFAULT_BGPD = 1, this.DEFAULT_RCNT = 32768;
 }
-k.prototype.clear = function() {
+L.prototype.clear = function() {
   this.registers = new Uint16Array(this.cpu.mmu.SIZE_IO), this.registers[this.DISPCNT >> 1] = this.DEFAULT_DISPCNT, this.registers[this.SOUNDBIAS >> 1] = this.DEFAULT_SOUNDBIAS, this.registers[this.BG2PA >> 1] = this.DEFAULT_BGPA, this.registers[this.BG2PD >> 1] = this.DEFAULT_BGPD, this.registers[this.BG3PA >> 1] = this.DEFAULT_BGPA, this.registers[this.BG3PD >> 1] = this.DEFAULT_BGPD, this.registers[this.RCNT >> 1] = this.DEFAULT_RCNT;
 };
-k.prototype.freeze = function() {
+L.prototype.freeze = function() {
   return {
     registers: this.registers.buffer.slice(0)
   };
 };
-k.prototype.defrost = function(t) {
+L.prototype.defrost = function(t) {
   this.registers = new Uint16Array(t.registers);
   for (var e = 0; e <= this.BLDY; e += 2)
     this.store16(e, this.registers[e >> 1]);
   this.cpu.mmu.adjustTimings(this.registers[this.WAITCNT >> 1]);
 };
-k.prototype.load8 = function(t) {
+L.prototype.load8 = function(t) {
   throw "Unimplmeneted unaligned I/O access";
 };
-k.prototype.load16 = function(t) {
+L.prototype.load16 = function(t) {
   return this.loadU16(t) << 16 >> 16;
 };
-k.prototype.load32 = function(t) {
+L.prototype.load32 = function(t) {
   switch (t &= 4294967292, t) {
     case this.DMA0CNT_LO:
     case this.DMA1CNT_LO:
@@ -3058,11 +3077,11 @@ k.prototype.load32 = function(t) {
   }
   return this.loadU16(t) | this.loadU16(t | 2) << 16;
 };
-k.prototype.loadU8 = function(t) {
+L.prototype.loadU8 = function(t) {
   var e = t & 1, s = this.loadU16(t & 65534);
   return s >>> (e << 3) & 255;
 };
-k.prototype.loadU16 = function(t) {
+L.prototype.loadU16 = function(t) {
   switch (t) {
     case this.DISPCNT:
     case this.BG0CNT:
@@ -3197,7 +3216,7 @@ k.prototype.loadU16 = function(t) {
   }
   return this.registers[t >> 1];
 };
-k.prototype.store8 = function(t, e) {
+L.prototype.store8 = function(t, e) {
   switch (t) {
     case this.WININ:
       this.value & 63;
@@ -3249,7 +3268,7 @@ k.prototype.store8 = function(t, e) {
   }
   t & 1 ? (e <<= 8, e |= this.registers[t >> 1] & 255) : (e &= 255, e |= this.registers[t >> 1] & 65280), this.store16(t & 268435454, e);
 };
-k.prototype.store16 = function(t, e) {
+L.prototype.store16 = function(t, e) {
   switch (t) {
     case this.DISPCNT:
       this.video.renderPath.writeDisplayControl(e);
@@ -3522,7 +3541,7 @@ k.prototype.store16 = function(t, e) {
   }
   this.registers[t >> 1] = e;
 };
-k.prototype.store32 = function(t, e) {
+L.prototype.store32 = function(t, e) {
   switch (t) {
     case this.BG2X_LO:
       e &= 268435455, this.video.renderPath.writeBackgroundRefX(2, e);
@@ -3579,9 +3598,9 @@ k.prototype.store32 = function(t, e) {
   }
   this.registers[t >> 1] = e & 65535, this.registers[(t >> 1) + 1] = e >>> 16;
 };
-k.prototype.invalidatePage = function(t) {
+L.prototype.invalidatePage = function(t) {
 };
-k.prototype.STUB_REG = function(t, e) {
+L.prototype.STUB_REG = function(t, e) {
   this.core.STUB("Unimplemented " + t + " register write: " + e.toString(16));
 };
 const pt = `// The AudioWorkletProcessor that plays the emulator's output. It runs on the
@@ -3591,6 +3610,12 @@ const pt = `// The AudioWorkletProcessor that plays the emulator's output. It ru
 // from its own URL, as dist/gba-audio-worklet.js, when the page passes
 // \`audioWorkletUrl\`; or from a Blob URL of this file's source, which needs a
 // CSP that allows blob: scripts.
+// How far playback may speed up or slow down to follow the buffer (see rate),
+// how hard it steers, and how smoothly it reads the fill
+var MAX_ADJUST = 0.01;
+var GAIN = 0.02;
+var SMOOTHING = 0.005;
+
 class GameBoyAdvanceAudioProcessor extends AudioWorkletProcessor {
 	constructor(options) {
 		super();
@@ -3605,6 +3630,9 @@ class GameBoyAdvanceAudioProcessor extends AudioWorkletProcessor {
 		this.prebuffer = opts.prebuffer;
 		this.maxBuffered = opts.maxBuffered;
 		this.buffering = true;
+		// Where playback steers the buffer's fill to: see process
+		this.target = opts.target || this.prebuffer * 1.5;
+		this.smoothedFill = this.prebuffer;
 		this.port.onmessage = (e) => this.push(e.data.left, e.data.right);
 	}
 
@@ -3626,25 +3654,44 @@ class GameBoyAdvanceAudioProcessor extends AudioWorkletProcessor {
 		}
 	}
 
+	// The emulator is paced by timers, and never makes sound at exactly the
+	// rate this plays it: a hair slow and the buffer drains until it runs dry
+	// (a gap), a hair fast and it fills until it has to skip (a click). So
+	// playback follows the buffer instead, up to MAX_ADJUST faster or slower
+	// as the fill sits above or below the target, and settles rather than
+	// ever running out. At these sizes that's a pitch change nobody hears.
+	rate() {
+		// Smoothed, since the fill jumps a batch at a time as the emulator posts
+		this.smoothedFill += (this.available() - this.smoothedFill) * SMOOTHING;
+		var error = (this.smoothedFill - this.target) / this.target;
+		var adjust = Math.max(-MAX_ADJUST, Math.min(MAX_ADJUST, error * GAIN));
+		return this.resampleRatio * (1 + adjust);
+	}
+
 	process(inputs, outputs) {
 		var left = outputs[0][0];
 		var right = outputs[0][1] || left;
 		var i = 0;
+		var ratio = this.rate();
 		if (this.buffering && this.available() >= this.prebuffer) {
 			this.buffering = false;
 		}
 		if (!this.buffering) {
 			var o = this.readPointer;
-			for (; i < left.length; ++i, o += this.resampleRatio) {
+			for (; i < left.length; ++i, o += ratio) {
 				if (o >= this.size) {
 					o -= this.size;
 				}
-				if ((o | 0) == this.writePointer) {
+				var at = o | 0;
+				var next = (at + 1) & this.mask;
+				// Interpolating needs the sample after this one too
+				if (next == this.writePointer || at == this.writePointer) {
 					this.buffering = true;
 					break;
 				}
-				left[i] = this.left[o | 0];
-				right[i] = this.right[o | 0];
+				var t = o - at;
+				left[i] = this.left[at] + (this.left[next] - this.left[at]) * t;
+				right[i] = this.right[at] + (this.right[next] - this.right[at]) * t;
 			}
 			this.readPointer = o;
 		}
@@ -3690,7 +3737,7 @@ g.prototype.initScriptProcessor = function() {
 g.prototype.updateOutput = function() {
   if (this.output) {
     var t = this.enabled && !this.paused;
-    t && !this.connected ? this.output.connect(this.context.destination) : !t && this.connected && this.output.disconnect(this.context.destination), this.connected = t, t && this.context.state == "suspended" && this.context.resume();
+    t && !this.connected ? this.output.connect(this.context.destination) : !t && this.connected && this.output.disconnect(this.context.destination), this.connected = t, t && this.context.state != "running" && this.context.state != "closed" && this.context.resume();
   }
 };
 g.prototype.clear = function() {
@@ -4030,46 +4077,46 @@ g.prototype.audioProcess = function(t) {
     for (i = 0; i < this.bufferSize; ++i)
       e[i] = 0, s[i] = 0;
 };
-function L(t) {
+function k(t) {
   this.buffer = new Uint16Array(t >> 1);
 }
-L.prototype.load8 = function(t) {
+k.prototype.load8 = function(t) {
   return this.loadU8(t) << 24 >> 24;
 };
-L.prototype.load16 = function(t) {
+k.prototype.load16 = function(t) {
   return this.loadU16(t) << 16 >> 16;
 };
-L.prototype.loadU8 = function(t) {
+k.prototype.loadU8 = function(t) {
   var e = t >> 1;
   return t & 1 ? (this.buffer[e] & 65280) >>> 8 : this.buffer[e] & 255;
 };
-L.prototype.loadU16 = function(t) {
+k.prototype.loadU16 = function(t) {
   return this.buffer[t >> 1];
 };
-L.prototype.load32 = function(t) {
+k.prototype.load32 = function(t) {
   return this.buffer[t >> 1 & -2] | this.buffer[t >> 1 | 1] << 16;
 };
-L.prototype.store8 = function(t, e) {
+k.prototype.store8 = function(t, e) {
   this.store16(t, e << 8 | e);
 };
-L.prototype.store16 = function(t, e) {
+k.prototype.store16 = function(t, e) {
   this.buffer[t >> 1] = e;
 };
-L.prototype.store32 = function(t, e) {
+k.prototype.store32 = function(t, e) {
   var s = t >> 1;
   this.store16(t, this.buffer[s] = e & 65535), this.store16(t + 2, this.buffer[s + 1] = e >>> 16);
 };
-L.prototype.insert = function(t, e) {
+k.prototype.insert = function(t, e) {
   this.buffer.set(e, t);
 };
-L.prototype.invalidatePage = function(t) {
+k.prototype.invalidatePage = function(t) {
 };
 function nt(t) {
-  L.call(this, t), this.vram = this.buffer;
+  k.call(this, t), this.vram = this.buffer;
 }
-nt.prototype = Object.create(L.prototype);
+nt.prototype = Object.create(k.prototype);
 function rt(t) {
-  L.call(this, t), this.oam = this.buffer, this.objs = new Array(128);
+  k.call(this, t), this.oam = this.buffer, this.objs = new Array(128);
   for (var e = 0; e < 128; ++e)
     this.objs[e] = new at(this, e);
   this.scalerot = new Array(32);
@@ -4081,7 +4128,7 @@ function rt(t) {
       d: 1
     };
 }
-rt.prototype = Object.create(L.prototype);
+rt.prototype = Object.create(k.prototype);
 rt.prototype.overwrite = function(t) {
   for (var e = 0; e < this.buffer.byteLength >> 1; ++e)
     this.store16(e << 1, t[e]);
@@ -4117,9 +4164,9 @@ rt.prototype.store16 = function(t, e) {
       }
       break;
   }
-  L.prototype.store16.call(this, t, e);
+  k.prototype.store16.call(this, t, e);
 };
-function O() {
+function y() {
   this.colors = [new Array(256), new Array(256)], this.adjustedColors = [new Array(256), new Array(256)], this.passthroughColors = [
     this.colors[0],
     // BG0
@@ -4135,77 +4182,77 @@ function O() {
     // Backdrop
   ], this.blendY = 1;
 }
-O.prototype.overwrite = function(t) {
+y.prototype.overwrite = function(t) {
   for (var e = 0; e < 512; ++e)
     this.store16(e << 1, t[e]);
 };
-O.prototype.loadU8 = function(t) {
+y.prototype.loadU8 = function(t) {
   return this.loadU16(t) >> 8 * (t & 1) & 255;
 };
-O.prototype.loadU16 = function(t) {
+y.prototype.loadU16 = function(t) {
   return this.colors[(t & 512) >> 9][(t & 511) >> 1];
 };
-O.prototype.load16 = function(t) {
+y.prototype.load16 = function(t) {
   return this.loadU16(t) << 16 >> 16;
 };
-O.prototype.load32 = function(t) {
+y.prototype.load32 = function(t) {
   return this.loadU16(t) | this.loadU16(t + 2) << 16;
 };
-O.prototype.store16 = function(t, e) {
+y.prototype.store16 = function(t, e) {
   var s = (t & 512) >> 9, i = (t & 511) >> 1;
   this.colors[s][i] = e, this.adjustedColors[s][i] = this.adjustColor(e);
 };
-O.prototype.store32 = function(t, e) {
+y.prototype.store32 = function(t, e) {
   this.store16(t, e & 65535), this.store16(t + 2, e >> 16);
 };
-O.prototype.invalidatePage = function(t) {
+y.prototype.invalidatePage = function(t) {
 };
-O.prototype.convert16To32 = function(t, e) {
+y.prototype.convert16To32 = function(t, e) {
   var s = (t & 31) << 3, i = (t & 992) >> 2, r = (t & 31744) >> 7;
   e[0] = s, e[1] = i, e[2] = r;
 };
-O.prototype.mix = function(t, e, s, i) {
+y.prototype.mix = function(t, e, s, i) {
   var r = e & 31, a = (e & 992) >> 5, h = (e & 31744) >> 10, n = i & 31, o = (i & 992) >> 5, u = (i & 31744) >> 10, c = Math.min(t * r + s * n, 31), p = Math.min(t * a + s * o, 31), f = Math.min(t * h + s * u, 31);
   return c | p << 5 | f << 10;
 };
-O.prototype.makeDarkPalettes = function(t) {
+y.prototype.makeDarkPalettes = function(t) {
   this.adjustColor != this.adjustColorDark && (this.adjustColor = this.adjustColorDark, this.resetPalettes()), this.resetPaletteLayers(t);
 };
-O.prototype.makeBrightPalettes = function(t) {
+y.prototype.makeBrightPalettes = function(t) {
   this.adjustColor != this.adjustColorBright && (this.adjustColor = this.adjustColorBright, this.resetPalettes()), this.resetPaletteLayers(t);
 };
-O.prototype.makeNormalPalettes = function() {
+y.prototype.makeNormalPalettes = function() {
   this.passthroughColors[0] = this.colors[0], this.passthroughColors[1] = this.colors[0], this.passthroughColors[2] = this.colors[0], this.passthroughColors[3] = this.colors[0], this.passthroughColors[4] = this.colors[1], this.passthroughColors[5] = this.colors[0];
 };
-O.prototype.makeSpecialPalette = function(t) {
+y.prototype.makeSpecialPalette = function(t) {
   this.passthroughColors[t] = this.adjustedColors[t == 4 ? 1 : 0];
 };
-O.prototype.makeNormalPalette = function(t) {
+y.prototype.makeNormalPalette = function(t) {
   this.passthroughColors[t] = this.colors[t == 4 ? 1 : 0];
 };
-O.prototype.resetPaletteLayers = function(t) {
+y.prototype.resetPaletteLayers = function(t) {
   t & 1 ? this.passthroughColors[0] = this.adjustedColors[0] : this.passthroughColors[0] = this.colors[0], t & 2 ? this.passthroughColors[1] = this.adjustedColors[0] : this.passthroughColors[1] = this.colors[0], t & 4 ? this.passthroughColors[2] = this.adjustedColors[0] : this.passthroughColors[2] = this.colors[0], t & 8 ? this.passthroughColors[3] = this.adjustedColors[0] : this.passthroughColors[3] = this.colors[0], t & 16 ? this.passthroughColors[4] = this.adjustedColors[1] : this.passthroughColors[4] = this.colors[1], t & 32 ? this.passthroughColors[5] = this.adjustedColors[0] : this.passthroughColors[5] = this.colors[0];
 };
-O.prototype.resetPalettes = function() {
+y.prototype.resetPalettes = function() {
   var t, e = this.adjustedColors[0], s = this.colors[0];
   for (t = 0; t < 256; ++t)
     e[t] = this.adjustColor(s[t]);
   for (e = this.adjustedColors[1], s = this.colors[1], t = 0; t < 256; ++t)
     e[t] = this.adjustColor(s[t]);
 };
-O.prototype.accessColor = function(t, e) {
+y.prototype.accessColor = function(t, e) {
   return this.passthroughColors[t][e];
 };
-O.prototype.adjustColorDark = function(t) {
+y.prototype.adjustColorDark = function(t) {
   var e = t & 31, s = (t & 992) >> 5, i = (t & 31744) >> 10;
   return e = e - e * this.blendY, s = s - s * this.blendY, i = i - i * this.blendY, e | s << 5 | i << 10;
 };
-O.prototype.adjustColorBright = function(t) {
+y.prototype.adjustColorBright = function(t) {
   var e = t & 31, s = (t & 992) >> 5, i = (t & 31744) >> 10;
   return e = e + (31 - e) * this.blendY, s = s + (31 - s) * this.blendY, i = i + (31 - i) * this.blendY, e | s << 5 | i << 10;
 };
-O.prototype.adjustColor = O.prototype.adjustColorBright;
-O.prototype.setBlendY = function(t) {
+y.prototype.adjustColor = y.prototype.adjustColorBright;
+y.prototype.setBlendY = function(t) {
   this.blendY != t && (this.blendY = t, this.resetPalettes());
 };
 function at(t, e) {
@@ -4220,16 +4267,16 @@ at.prototype.drawScanlineNormal = function(t, e, s, i, r) {
   this.vflip ? f = this.cachedHeight - e + s - 1 : f = e - s;
   var l = f & 7, x, m, v = this.multipalette ? 1 : 0;
   a.objCharacterMapping ? m = (f & 504) * this.cachedWidth >> 6 : m = (f & 504) << 2 - v, this.mosaic && (x = a.objMosaicX - 1 - (a.objMosaicX + o - 1) % a.objMosaicX, o += x, n += x), this.hflip ? p = this.cachedWidth - n - 1 : p = n;
-  var E = a.accessTile(this.TILE_OFFSET + (h & 4) * v, this.tileBase + (m << v) + ((p & 504) >> 3 - v), l << v);
+  var I = a.accessTile(this.TILE_OFFSET + (h & 4) * v, this.tileBase + (m << v) + ((p & 504) >> 3 - v), l << v);
   for (h = n; h < c; ++h)
-    x = this.mosaic ? o % a.objMosaicX : 0, this.hflip ? p = this.cachedWidth - (h - x) - 1 : p = h - x, v ? (!(h & 3) || this.mosaic && !x) && (E = a.accessTile(this.TILE_OFFSET + (p & 4), this.tileBase + (m << 1) + ((p & 504) >> 2), l << 1)) : (!(h & 7) || this.mosaic && !x) && (E = a.accessTile(this.TILE_OFFSET, this.tileBase + m + (p >> 3), l)), this.pushPixel(a.LAYER_OBJ, this, a, E, p & 7, o, t, u, !1), o++;
+    x = this.mosaic ? o % a.objMosaicX : 0, this.hflip ? p = this.cachedWidth - (h - x) - 1 : p = h - x, v ? (!(h & 3) || this.mosaic && !x) && (I = a.accessTile(this.TILE_OFFSET + (p & 4), this.tileBase + (m << 1) + ((p & 504) >> 2), l << 1)) : (!(h & 7) || this.mosaic && !x) && (I = a.accessTile(this.TILE_OFFSET, this.tileBase + m + (p >> 3), l)), this.pushPixel(a.LAYER_OBJ, this, a, I, p & 7, o, t, u, !1), o++;
 };
 at.prototype.drawScanlineAffine = function(t, e, s, i, r) {
   var a = this.oam.video, h, n, o, u = this.mode | a.target2[a.LAYER_OBJ] | this.priority << 1;
   this.mode == 16 && (u |= a.TARGET1_MASK), a.blendMode == 1 && a.alphaEnabled && (u |= a.target1[a.LAYER_OBJ]);
-  var c, p, f = e - s, l, x, m = this.multipalette ? 1 : 0, v = this.cachedWidth << this.doublesize, E = this.cachedHeight << this.doublesize, _ = v;
+  var c, p, f = e - s, l, x, m = this.multipalette ? 1 : 0, v = this.cachedWidth << this.doublesize, I = this.cachedHeight << this.doublesize, _ = v;
   for (_ > a.HORIZONTAL_PIXELS && (v = a.HORIZONTAL_PIXELS), this.x < a.HORIZONTAL_PIXELS ? (this.x < i ? (n = i - this.x, o = i) : (n = 0, o = this.x), r < _ + this.x && (_ = r - this.x)) : (n = i + 512 - this.x, o = i, r < _ - n && (_ = r)), h = n; h < _; ++h) {
-    if (c = this.scalerotOam.a * (h - (v >> 1)) + this.scalerotOam.b * (f - (E >> 1)) + (this.cachedWidth >> 1), p = this.scalerotOam.c * (h - (v >> 1)) + this.scalerotOam.d * (f - (E >> 1)) + (this.cachedHeight >> 1), this.mosaic && (c -= h % a.objMosaicX * this.scalerotOam.a + e % a.objMosaicY * this.scalerotOam.b, p -= h % a.objMosaicX * this.scalerotOam.c + e % a.objMosaicY * this.scalerotOam.d), c < 0 || c >= this.cachedWidth || p < 0 || p >= this.cachedHeight) {
+    if (c = this.scalerotOam.a * (h - (v >> 1)) + this.scalerotOam.b * (f - (I >> 1)) + (this.cachedWidth >> 1), p = this.scalerotOam.c * (h - (v >> 1)) + this.scalerotOam.d * (f - (I >> 1)) + (this.cachedHeight >> 1), this.mosaic && (c -= h % a.objMosaicX * this.scalerotOam.a + e % a.objMosaicY * this.scalerotOam.b, p -= h % a.objMosaicX * this.scalerotOam.c + e % a.objMosaicY * this.scalerotOam.d), c < 0 || c >= this.cachedWidth || p < 0 || p >= this.cachedHeight) {
       o++;
       continue;
     }
@@ -4301,7 +4348,7 @@ function A() {
   }(this);
 }
 A.prototype.clear = function(t) {
-  this.palette = new O(), this.vram = new nt(t.SIZE_VRAM), this.oam = new rt(t.SIZE_OAM), this.oam.video = this, this.objLayers = [
+  this.palette = new y(), this.vram = new nt(t.SIZE_VRAM), this.oam = new rt(t.SIZE_OAM), this.oam.video = this, this.objLayers = [
     new z(this, 0),
     new z(this, 1),
     new z(this, 2),
@@ -4565,29 +4612,29 @@ A.prototype.prepareScanline = function(t) {
 A.prototype.drawScanlineBGMode0 = function(t, e, s, i) {
   var r = this.video, a, h = r.vcount, n = s, o = e.x, u = e.y, c, p, f = h + u;
   this.mosaic && (f -= h % r.bgMosaicY);
-  var l = f & 7, x, m = e.screenBase, v = e.charBase, E = e.size, _ = e.index, y = r.sharedMap, q = e.multipalette ? 1 : 0, G = r.target2[_] | e.priority << 1 | r.BACKGROUND_MASK;
+  var l = f & 7, x, m = e.screenBase, v = e.charBase, I = e.size, _ = e.index, O = r.sharedMap, Q = e.multipalette ? 1 : 0, G = r.target2[_] | e.priority << 1 | r.BACKGROUND_MASK;
   r.blendMode == 1 && r.alphaEnabled && (G |= r.target1[_]);
   var C = f << 3 & 1984;
-  E == 2 ? C += f << 3 & 2048 : E == 3 && (C += f << 4 & 4096);
+  I == 2 ? C += f << 3 & 2048 : I == 3 && (C += f << 4 & 4096);
   var N;
-  E & 1 ? N = 511 : N = 255, r.accessMapMode0(m, E, s + o & N, C, y);
-  var D = r.accessTile(v, y.tile << q, (y.vflip ? 7 - l : l) << q);
+  I & 1 ? N = 511 : N = 255, r.accessMapMode0(m, I, s + o & N, C, O);
+  var D = r.accessTile(v, O.tile << Q, (O.vflip ? 7 - l : l) << Q);
   for (a = s; a < i; ++a) {
-    if (c = a + o & N, x = this.mosaic ? n % r.bgMosaicX : 0, c -= x, p = c & 7, q) {
-      if ((!p || this.mosaic && !x) && r.accessMapMode0(m, E, c, C, y), (!(p & 3) || this.mosaic && !x) && (D = r.accessTile(v + (!!(c & 4) == !y.hflip ? 4 : 0), y.tile << 1, (y.vflip ? 7 - l : l) << 1), !D && !(p & 3))) {
+    if (c = a + o & N, x = this.mosaic ? n % r.bgMosaicX : 0, c -= x, p = c & 7, Q) {
+      if ((!p || this.mosaic && !x) && r.accessMapMode0(m, I, c, C, O), (!(p & 3) || this.mosaic && !x) && (D = r.accessTile(v + (!!(c & 4) == !O.hflip ? 4 : 0), O.tile << 1, (O.vflip ? 7 - l : l) << 1), !D && !(p & 3))) {
         a += 3, n += 4;
         continue;
       }
-    } else if ((!p || this.mosaic && !x) && (r.accessMapMode0(m, E, c, C, y), D = r.accessTile(v, y.tile, y.vflip ? 7 - l : l), !D && !p)) {
+    } else if ((!p || this.mosaic && !x) && (r.accessMapMode0(m, I, c, C, O), D = r.accessTile(v, O.tile, O.vflip ? 7 - l : l), !D && !p)) {
       a += 7, n += 8;
       continue;
     }
-    y.hflip && (p = 7 - p), e.pushPixel(_, y, r, D, p, n, t, G, !1), n++;
+    O.hflip && (p = 7 - p), e.pushPixel(_, O, r, D, p, n, t, G, !1), n++;
   }
 };
 A.prototype.drawScanlineBGMode2 = function(t, e, s, i) {
-  var r = this.video, a, h = r.vcount, n = s, o, u, c = e.screenBase, p = e.charBase, f = e.size, l = 128 << f, x = e.index, m = r.sharedMap, v, E = r.target2[x] | e.priority << 1 | r.BACKGROUND_MASK;
-  r.blendMode == 1 && r.alphaEnabled && (E |= r.target1[x]);
+  var r = this.video, a, h = r.vcount, n = s, o, u, c = e.screenBase, p = e.charBase, f = e.size, l = 128 << f, x = e.index, m = r.sharedMap, v, I = r.target2[x] | e.priority << 1 | r.BACKGROUND_MASK;
+  r.blendMode == 1 && r.alphaEnabled && (I |= r.target1[x]);
   var _;
   for (a = s; a < i; ++a) {
     if (o = e.dx * a + e.sx, u = e.dy * a + e.sy, this.mosaic && (o -= a % r.bgMosaicX * e.dx + h % r.bgMosaicY * e.dmx, u -= a % r.bgMosaicX * e.dy + h % r.bgMosaicY * e.dmy), e.overflow)
@@ -4596,7 +4643,7 @@ A.prototype.drawScanlineBGMode2 = function(t, e, s, i) {
       n++;
       continue;
     }
-    _ = (u << 1 & 2032) << f, r.accessMapMode1(c, f, o, _, m), v = this.vram.loadU8(p + (m.tile << 6) + ((u & 7) << 3) + (o & 7)), e.pushPixel(x, m, r, v, 0, n, t, E, !1), n++;
+    _ = (u << 1 & 2032) << f, r.accessMapMode1(c, f, o, _, m), v = this.vram.loadU8(p + (m.tile << 6) + ((u & 7) << 3) + (o & 7)), e.pushPixel(x, m, r, v, 0, n, t, I, !1), n++;
   }
 };
 A.prototype.drawScanlineBGMode3 = function(t, e, s, i) {
@@ -4655,15 +4702,15 @@ A.prototype.startDraw = function() {
 A.prototype.finishDraw = function(t) {
   this.bg[2].sx = this.bg[2].refx, this.bg[2].sy = this.bg[2].refy, this.bg[3].sx = this.bg[3].refx, this.bg[3].sy = this.bg[3].refy, t.finishDraw(this.pixelData);
 };
-function Q() {
+function Y() {
   this.renderPath = new A(), this.CYCLES_PER_PIXEL = 4, this.HORIZONTAL_PIXELS = 240, this.HBLANK_PIXELS = 68, this.HDRAW_LENGTH = 1006, this.HBLANK_LENGTH = 226, this.HORIZONTAL_LENGTH = 1232, this.VERTICAL_PIXELS = 160, this.VBLANK_PIXELS = 68, this.VERTICAL_TOTAL_PIXELS = 228, this.TOTAL_LENGTH = 280896, this.drawCallback = function() {
   }, this.vblankCallback = function() {
   };
 }
-Q.prototype.clear = function() {
+Y.prototype.clear = function() {
   this.renderPath.clear(this.cpu.mmu), this.DISPSTAT_MASK = 65336, this.inHblank = !1, this.inVblank = !1, this.vcounter = 0, this.vblankIRQ = 0, this.hblankIRQ = 0, this.vcounterIRQ = 0, this.vcountSetting = 0, this.vcount = -1, this.lastHblank = 0, this.nextHblank = this.HDRAW_LENGTH, this.nextEvent = this.nextHblank, this.nextHblankIRQ = 0, this.nextVblankIRQ = 0, this.nextVcounterIRQ = 0;
 };
-Q.prototype.freeze = function() {
+Y.prototype.freeze = function() {
   return {
     inHblank: this.inHblank,
     inVblank: this.inVblank,
@@ -4682,17 +4729,17 @@ Q.prototype.freeze = function() {
     renderPath: this.renderPath.freeze(this.core.encodeBase64)
   };
 };
-Q.prototype.defrost = function(t) {
+Y.prototype.defrost = function(t) {
   this.inHblank = t.inHblank, this.inVblank = t.inVblank, this.vcounter = t.vcounter, this.vblankIRQ = t.vblankIRQ, this.hblankIRQ = t.hblankIRQ, this.vcounterIRQ = t.vcounterIRQ, this.vcountSetting = t.vcountSetting, this.vcount = t.vcount, this.lastHblank = t.lastHblank, this.nextHblank = t.nextHblank, this.nextEvent = t.nextEvent, this.nextHblankIRQ = t.nextHblankIRQ, this.nextVblankIRQ = t.nextVblankIRQ, this.nextVcounterIRQ = t.nextVcounterIRQ, t.renderPath && this.renderPath.defrost(t.renderPath, this.core.decodeBase64);
 };
-Q.prototype.setBacking = function(t) {
+Y.prototype.setBacking = function(t) {
   var e = t.createImageData(this.HORIZONTAL_PIXELS, this.VERTICAL_PIXELS);
   this.context = t;
   for (var s = 0; s < this.HORIZONTAL_PIXELS * this.VERTICAL_PIXELS * 4; )
     e.data[s++] = 255, e.data[s++] = 255, e.data[s++] = 255, e.data[s++] = 255;
   this.renderPath.setBacking(e);
 };
-Q.prototype.updateTimers = function(t) {
+Y.prototype.updateTimers = function(t) {
   var e = t.cycles;
   if (this.nextEvent <= e)
     if (this.inHblank) {
@@ -4711,19 +4758,19 @@ Q.prototype.updateTimers = function(t) {
     } else
       this.inHblank = !0, this.lastHblank = this.nextHblank, this.nextEvent = this.lastHblank + this.HBLANK_LENGTH, this.nextHblank = this.nextEvent + this.HDRAW_LENGTH, this.nextHblankIRQ = this.nextHblank, this.vcount < this.VERTICAL_PIXELS && this.cpu.mmu.runHblankDmas(), this.hblankIRQ && this.cpu.irq.raiseIRQ(this.cpu.irq.IRQ_HBLANK);
 };
-Q.prototype.writeDisplayStat = function(t) {
+Y.prototype.writeDisplayStat = function(t) {
   this.vblankIRQ = t & 8, this.hblankIRQ = t & 16, this.vcounterIRQ = t & 32, this.vcountSetting = (t & 65280) >> 8, this.vcounterIRQ && (this.nextVcounterIRQ = this.nextHblank + this.HBLANK_LENGTH + (this.vcountSetting - this.vcount) * this.HORIZONTAL_LENGTH, this.nextVcounterIRQ < this.nextEvent && (this.nextVcounterIRQ += this.TOTAL_LENGTH));
 };
-Q.prototype.readDisplayStat = function() {
+Y.prototype.readDisplayStat = function() {
   return this.inVblank | this.inHblank << 1 | this.vcounter << 2;
 };
-Q.prototype.finishDraw = function(t) {
+Y.prototype.finishDraw = function(t) {
   this.context.putImageData(t, 0, 0), this.drawCallback();
 };
-function Y() {
-  this.KEYCODE_LEFT = 37, this.KEYCODE_UP = 38, this.KEYCODE_RIGHT = 39, this.KEYCODE_DOWN = 40, this.KEYCODE_START = 13, this.KEYCODE_SELECT = 220, this.KEYCODE_A = 90, this.KEYCODE_B = 88, this.KEYCODE_L = 65, this.KEYCODE_R = 83, this.GAMEPAD_LEFT = 14, this.GAMEPAD_UP = 12, this.GAMEPAD_RIGHT = 15, this.GAMEPAD_DOWN = 13, this.GAMEPAD_START = 9, this.GAMEPAD_SELECT = 8, this.GAMEPAD_A = 1, this.GAMEPAD_B = 0, this.GAMEPAD_L = 4, this.GAMEPAD_R = 5, this.GAMEPAD_THRESHOLD = 0.2, this.A = 0, this.B = 1, this.SELECT = 2, this.START = 3, this.RIGHT = 4, this.LEFT = 5, this.UP = 6, this.DOWN = 7, this.R = 8, this.L = 9, this.currentDown = 1023, this.eatInput = !1, this.gamepads = [];
+function q() {
+  this.KEYCODE_LEFT = 37, this.KEYCODE_UP = 38, this.KEYCODE_RIGHT = 39, this.KEYCODE_DOWN = 40, this.KEYCODE_START = 13, this.KEYCODE_SELECT = 220, this.KEYCODE_A = 90, this.KEYCODE_B = 88, this.KEYCODE_L = 65, this.KEYCODE_R = 83, this.GAMEPAD_LEFT = 14, this.GAMEPAD_UP = 12, this.GAMEPAD_RIGHT = 15, this.GAMEPAD_DOWN = 13, this.GAMEPAD_START = 9, this.GAMEPAD_SELECT = 8, this.GAMEPAD_A = 1, this.GAMEPAD_B = 0, this.GAMEPAD_L = 4, this.GAMEPAD_R = 5, this.GAMEPAD_THRESHOLD = 0.2, this.pollsGamepads = !1, this.A = 0, this.B = 1, this.SELECT = 2, this.START = 3, this.RIGHT = 4, this.LEFT = 5, this.UP = 6, this.DOWN = 7, this.R = 8, this.L = 9, this.currentDown = 1023, this.eatInput = !1, this.gamepads = [];
 }
-Y.prototype.keyboardHandler = function(t) {
+q.prototype.keyboardHandler = function(t) {
   var e = 0;
   switch (t.keyCode) {
     case this.KEYCODE_START:
@@ -4761,33 +4808,38 @@ Y.prototype.keyboardHandler = function(t) {
   }
   e = 1 << e, t.type == "keydown" ? this.currentDown &= ~e : this.currentDown |= e, this.eatInput && t.preventDefault();
 };
-Y.prototype.gamepadHandler = function(t) {
+q.prototype.gamepadHandler = function(t) {
   var e = 0;
-  t.buttons[this.GAMEPAD_LEFT] > this.GAMEPAD_THRESHOLD && (e |= 1 << this.LEFT), t.buttons[this.GAMEPAD_UP] > this.GAMEPAD_THRESHOLD && (e |= 1 << this.UP), t.buttons[this.GAMEPAD_RIGHT] > this.GAMEPAD_THRESHOLD && (e |= 1 << this.RIGHT), t.buttons[this.GAMEPAD_DOWN] > this.GAMEPAD_THRESHOLD && (e |= 1 << this.DOWN), t.buttons[this.GAMEPAD_START] > this.GAMEPAD_THRESHOLD && (e |= 1 << this.START), t.buttons[this.GAMEPAD_SELECT] > this.GAMEPAD_THRESHOLD && (e |= 1 << this.SELECT), t.buttons[this.GAMEPAD_A] > this.GAMEPAD_THRESHOLD && (e |= 1 << this.A), t.buttons[this.GAMEPAD_B] > this.GAMEPAD_THRESHOLD && (e |= 1 << this.B), t.buttons[this.GAMEPAD_L] > this.GAMEPAD_THRESHOLD && (e |= 1 << this.L), t.buttons[this.GAMEPAD_R] > this.GAMEPAD_THRESHOLD && (e |= 1 << this.R), this.currentDown = ~e & 1023;
+  this.isPressed(t.buttons[this.GAMEPAD_LEFT]) && (e |= 1 << this.LEFT), this.isPressed(t.buttons[this.GAMEPAD_UP]) && (e |= 1 << this.UP), this.isPressed(t.buttons[this.GAMEPAD_RIGHT]) && (e |= 1 << this.RIGHT), this.isPressed(t.buttons[this.GAMEPAD_DOWN]) && (e |= 1 << this.DOWN), this.isPressed(t.buttons[this.GAMEPAD_START]) && (e |= 1 << this.START), this.isPressed(t.buttons[this.GAMEPAD_SELECT]) && (e |= 1 << this.SELECT), this.isPressed(t.buttons[this.GAMEPAD_A]) && (e |= 1 << this.A), this.isPressed(t.buttons[this.GAMEPAD_B]) && (e |= 1 << this.B), this.isPressed(t.buttons[this.GAMEPAD_L]) && (e |= 1 << this.L), this.isPressed(t.buttons[this.GAMEPAD_R]) && (e |= 1 << this.R), this.currentDown = ~e & 1023;
 };
-Y.prototype.gamepadConnectHandler = function(t) {
+q.prototype.isPressed = function(t) {
+  return t && typeof t == "object" ? t.pressed || t.value > this.GAMEPAD_THRESHOLD : t > this.GAMEPAD_THRESHOLD;
+};
+q.prototype.gamepadConnectHandler = function(t) {
   this.gamepads.push(t);
 };
-Y.prototype.gamepadDisconnectHandler = function(t) {
-  this.gamepads = self.gamepads.filter(function(e) {
+q.prototype.gamepadDisconnectHandler = function(t) {
+  this.gamepads = this.gamepads.filter(function(e) {
     return e != t;
   });
 };
-Y.prototype.pollGamepads = function() {
-  var t = [];
-  navigator.webkitGetGamepads ? t = navigator.webkitGetGamepads() : navigator.getGamepads && (t = navigator.getGamepads()), t.length && (this.gamepads = []);
-  for (var e = 0; e < t.length; ++e)
-    t[e] && this.gamepads.push(t[e]);
-  this.gamepads.length > 0 && this.gamepadHandler(this.gamepads[0]);
+q.prototype.pollGamepads = function() {
+  if (this.pollsGamepads) {
+    var t = [];
+    navigator.webkitGetGamepads ? t = navigator.webkitGetGamepads() : navigator.getGamepads && (t = navigator.getGamepads()), t.length && (this.gamepads = []);
+    for (var e = 0; e < t.length; ++e)
+      t[e] && this.gamepads.push(t[e]);
+    this.gamepads.length > 0 && this.gamepadHandler(this.gamepads[0]);
+  }
 };
-Y.prototype.press = function(t) {
+q.prototype.press = function(t) {
   this.currentDown &= ~(1 << t);
 };
-Y.prototype.release = function(t) {
+q.prototype.release = function(t) {
   this.currentDown |= 1 << t;
 };
-Y.prototype.registerHandlers = function() {
-  typeof globalThis < "u" && globalThis.addEventListener && (globalThis.addEventListener("keydown", this.keyboardHandler.bind(this), !0), globalThis.addEventListener("keyup", this.keyboardHandler.bind(this), !0), globalThis.addEventListener("gamepadconnected", this.gamepadConnectHandler.bind(this), !0), globalThis.addEventListener("mozgamepadconnected", this.gamepadConnectHandler.bind(this), !0), globalThis.addEventListener("webkitgamepadconnected", this.gamepadConnectHandler.bind(this), !0), globalThis.addEventListener("gamepaddisconnected", this.gamepadDisconnectHandler.bind(this), !0), globalThis.addEventListener("mozgamepaddisconnected", this.gamepadDisconnectHandler.bind(this), !0), globalThis.addEventListener("webkitgamepaddisconnected", this.gamepadDisconnectHandler.bind(this), !0));
+q.prototype.registerHandlers = function() {
+  this.pollsGamepads = !0, typeof globalThis < "u" && globalThis.addEventListener && (globalThis.addEventListener("keydown", this.keyboardHandler.bind(this), !0), globalThis.addEventListener("keyup", this.keyboardHandler.bind(this), !0), globalThis.addEventListener("gamepadconnected", this.gamepadConnectHandler.bind(this), !0), globalThis.addEventListener("mozgamepadconnected", this.gamepadConnectHandler.bind(this), !0), globalThis.addEventListener("webkitgamepadconnected", this.gamepadConnectHandler.bind(this), !0), globalThis.addEventListener("gamepaddisconnected", this.gamepadDisconnectHandler.bind(this), !0), globalThis.addEventListener("mozgamepaddisconnected", this.gamepadDisconnectHandler.bind(this), !0), globalThis.addEventListener("webkitgamepaddisconnected", this.gamepadDisconnectHandler.bind(this), !0));
 };
 function $() {
   this.SIO_NORMAL_8 = 0, this.SIO_NORMAL_32 = 1, this.SIO_MULTI = 2, this.SIO_UART = 3, this.SIO_GPIO = 8, this.SIO_JOYBUS = 12, this.BAUD = [9600, 38400, 57600, 115200];
@@ -4869,10 +4921,15 @@ $.prototype.read = function(t) {
   return 0;
 };
 function S(t) {
-  t = t || {}, this.LOG_ERROR = 1, this.LOG_WARN = 2, this.LOG_STUB = 4, this.LOG_INFO = 8, this.LOG_DEBUG = 16, this.SYS_ID = "com.endrift.gbajs", this.logLevel = this.LOG_ERROR | this.LOG_WARN, this.rom = null, this.cpu = new P(), this.mmu = new b(), this.irq = new I(), this.io = new k(), this.audio = new g(t), this.video = new Q(), this.keypad = new Y(), this.sio = new $(), this.cpu.mmu = this.mmu, this.cpu.irq = this.irq, this.mmu.cpu = this.cpu, this.mmu.core = this, this.irq.cpu = this.cpu, this.irq.io = this.io, this.irq.audio = this.audio, this.irq.video = this.video, this.irq.core = this, this.io.cpu = this.cpu, this.io.audio = this.audio, this.io.video = this.video, this.io.keypad = this.keypad, this.io.sio = this.sio, this.io.core = this, this.audio.cpu = this.cpu, this.audio.core = this, this.video.cpu = this.cpu, this.video.core = this, this.keypad.core = this, this.sio.core = this, t.bindInput !== !1 && this.keypad.registerHandlers(), this.doStep = this.waitFrame, this.paused = !1, this.seenFrame = !1, this.seenSave = !1, this.lastVblank = 0, this.queue = null, this.reportFPS = null, this.throttle = t.throttle || 16, this.onSavedata = t.onSavedata || null;
-  var e = this;
-  this.queueFrame = function(s) {
-    e.queue = setTimeout(s, e.throttle);
+  t = t || {}, this.LOG_ERROR = 1, this.LOG_WARN = 2, this.LOG_STUB = 4, this.LOG_INFO = 8, this.LOG_DEBUG = 16, this.SYS_ID = "com.endrift.gbajs", this.logLevel = this.LOG_ERROR | this.LOG_WARN, this.rom = null, this.cpu = new T(), this.mmu = new b(), this.irq = new E(), this.io = new L(), this.audio = new g(t), this.video = new Y(), this.keypad = new q(), this.sio = new $(), this.cpu.mmu = this.mmu, this.cpu.irq = this.irq, this.mmu.cpu = this.cpu, this.mmu.core = this, this.irq.cpu = this.cpu, this.irq.io = this.io, this.irq.audio = this.audio, this.irq.video = this.video, this.irq.core = this, this.io.cpu = this.cpu, this.io.audio = this.audio, this.io.video = this.video, this.io.keypad = this.keypad, this.io.sio = this.sio, this.io.core = this, this.audio.cpu = this.cpu, this.audio.core = this, this.video.cpu = this.cpu, this.video.core = this, this.keypad.core = this, this.sio.core = this, t.bindInput !== !1 && this.keypad.registerHandlers(), this.doStep = this.waitFrame, this.paused = !1, this.seenFrame = !1, this.seenSave = !1, this.lastVblank = 0, this.queue = null, this.reportFPS = null, this.throttle = t.throttle || 16, this.onSavedata = t.onSavedata || null, this.FRAME_MS = 280896 / 16777216 * 1e3, this.speed = 1, this.nextFrameAt = 0;
+  var e = this, s = !!t.throttle;
+  this.queueFrame = function(i) {
+    if (s) {
+      e.queue = setTimeout(i, e.throttle);
+      return;
+    }
+    var r = performance.now(), a = e.FRAME_MS / e.speed;
+    r - e.nextFrameAt > 100 ? e.nextFrameAt = r + a : e.nextFrameAt += a, e.queue = setTimeout(i, Math.max(0, e.nextFrameAt - r));
   }, this.video.vblankCallback = function() {
     e.seenFrame = !0;
   };
@@ -5092,8 +5149,11 @@ S.prototype.press = function(t) {
 S.prototype.release = function(t) {
   this.keypad.release(t);
 };
+S.prototype.setHook = function(t, e) {
+  this.cpu.setHook(t, e);
+};
 S.prototype.setSpeed = function(t) {
-  this.throttle = Math.max(1, Math.floor(16 / t));
+  this.speed = t, this.throttle = Math.max(1, Math.floor(16 / t));
 };
 export {
   S as GameBoyAdvance,

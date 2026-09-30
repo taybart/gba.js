@@ -312,6 +312,9 @@ ARMCore.prototype.loadInstructionArm = function(address) {
 	}
 	var instruction = this.mmu.load32(address) >>> 0;
 	next = this.compileArm(instruction);
+	if (this.hook && this.hook.address === address) {
+		next = this.withHook(next);
+	}
 	next.next = null;
 	next.page = this.page;
 	next.address = address;
@@ -330,12 +333,57 @@ ARMCore.prototype.loadInstructionThumb = function(address) {
 	}
 	var instruction = this.mmu.load16(address);
 	next = this.compileThumb(instruction);
+	if (this.hook && this.hook.address === address) {
+		next = this.withHook(next);
+	}
 	next.next = null;
 	next.page = this.page;
 	next.address = address;
 	next.opcode = instruction;
 	this.page.thumb[offset] = next;
 	return next;
+};
+
+// A hook: `callback` runs each time the instruction at `address` is about to,
+// the way a cheat device runs its codes at a point in the game's own code (see
+// GameBoyAdvance.setHook). Only that one compiled instruction is wrapped, so
+// nothing else pays for it; the page it's on is dropped from the cache so the
+// wrap takes, both when a hook is set and when it's cleared.
+ARMCore.prototype.setHook = function(address, callback) {
+	var previous = this.hook;
+	this.hook = address === null ? null : { address: address >>> 0, callback: callback };
+	if (previous) {
+		this.dropCachedPage(previous.address);
+	}
+	if (this.hook) {
+		this.dropCachedPage(this.hook.address);
+	}
+};
+
+ARMCore.prototype.dropCachedPage = function(address) {
+	var region = address >>> this.mmu.BASE_OFFSET;
+	var memory = this.mmu.memory[region];
+	if (!memory || !memory.icache) {
+		return;
+	}
+	var page = memory.icache[this.mmu.addressToPage(region, address & this.mmu.OFFSET_MASK)];
+	if (page) {
+		// Anything linked to its instructions checks this before reusing them
+		page.invalid = true;
+	}
+};
+
+ARMCore.prototype.withHook = function(instruction) {
+	var hook = this.hook;
+	var hooked = function() {
+		hook.callback();
+		instruction();
+	};
+	// The compiled instruction's own flags (writesPC, fixedJump, ...)
+	for (var key in instruction) {
+		hooked[key] = instruction[key];
+	}
+	return hooked;
 };
 
 ARMCore.prototype.selectBank = function(mode) {

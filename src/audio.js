@@ -92,8 +92,10 @@ GameBoyAdvanceAudio.prototype.updateOutput = function() {
 		this.output.disconnect(this.context.destination);
 	}
 	this.connected = wanted;
-	if (wanted && this.context.state == 'suspended') {
-		// Browsers start contexts suspended until a user gesture; this succeeds once one has happened
+	if (wanted && this.context.state != 'running' && this.context.state != 'closed') {
+		// Browsers start contexts suspended until a user gesture, and iOS parks
+		// them as 'interrupted' after a call or a trip to the background; this
+		// succeeds once there's been a gesture
 		this.context.resume();
 	}
 };

@@ -22,6 +22,11 @@ function GameBoyAdvanceKeypad() {
 	this.GAMEPAD_R = 5;
 	this.GAMEPAD_THRESHOLD = 0.2;
 
+	// Only when this keypad is handling input itself (registerHandlers). A page
+	// passing `bindInput: false` presses buttons through press/release, and a
+	// poll here would overwrite them with the controller's state every read.
+	this.pollsGamepads = false;
+
 	this.A = 0;
 	this.B = 1;
 	this.SELECT = 2;
@@ -90,38 +95,47 @@ GameBoyAdvanceKeypad.prototype.keyboardHandler = function(e) {
 
 GameBoyAdvanceKeypad.prototype.gamepadHandler = function(gamepad) {
 	var value = 0;
-	if (gamepad.buttons[this.GAMEPAD_LEFT] > this.GAMEPAD_THRESHOLD) {
+	if (this.isPressed(gamepad.buttons[this.GAMEPAD_LEFT])) {
 		value |= 1 << this.LEFT;
 	}
-	if (gamepad.buttons[this.GAMEPAD_UP] > this.GAMEPAD_THRESHOLD) {
+	if (this.isPressed(gamepad.buttons[this.GAMEPAD_UP])) {
 		value |= 1 << this.UP;
 	}
-	if (gamepad.buttons[this.GAMEPAD_RIGHT] > this.GAMEPAD_THRESHOLD) {
+	if (this.isPressed(gamepad.buttons[this.GAMEPAD_RIGHT])) {
 		value |= 1 << this.RIGHT;
 	}
-	if (gamepad.buttons[this.GAMEPAD_DOWN] > this.GAMEPAD_THRESHOLD) {
+	if (this.isPressed(gamepad.buttons[this.GAMEPAD_DOWN])) {
 		value |= 1 << this.DOWN;
 	}
-	if (gamepad.buttons[this.GAMEPAD_START] > this.GAMEPAD_THRESHOLD) {
+	if (this.isPressed(gamepad.buttons[this.GAMEPAD_START])) {
 		value |= 1 << this.START;
 	}
-	if (gamepad.buttons[this.GAMEPAD_SELECT] > this.GAMEPAD_THRESHOLD) {
+	if (this.isPressed(gamepad.buttons[this.GAMEPAD_SELECT])) {
 		value |= 1 << this.SELECT;
 	}
-	if (gamepad.buttons[this.GAMEPAD_A] > this.GAMEPAD_THRESHOLD) {
+	if (this.isPressed(gamepad.buttons[this.GAMEPAD_A])) {
 		value |= 1 << this.A;
 	}
-	if (gamepad.buttons[this.GAMEPAD_B] > this.GAMEPAD_THRESHOLD) {
+	if (this.isPressed(gamepad.buttons[this.GAMEPAD_B])) {
 		value |= 1 << this.B;
 	}
-	if (gamepad.buttons[this.GAMEPAD_L] > this.GAMEPAD_THRESHOLD) {
+	if (this.isPressed(gamepad.buttons[this.GAMEPAD_L])) {
 		value |= 1 << this.L;
 	}
-	if (gamepad.buttons[this.GAMEPAD_R] > this.GAMEPAD_THRESHOLD) {
+	if (this.isPressed(gamepad.buttons[this.GAMEPAD_R])) {
 		value |= 1 << this.R;
 	}
 
 	this.currentDown = ~value & 0x3FF;
+};
+
+// Buttons are objects (`{pressed, value}`) in the Gamepad API as it shipped;
+// early implementations gave bare numbers
+GameBoyAdvanceKeypad.prototype.isPressed = function(button) {
+	if (button && typeof button === 'object') {
+		return button.pressed || button.value > this.GAMEPAD_THRESHOLD;
+	}
+	return button > this.GAMEPAD_THRESHOLD;
 };
 
 GameBoyAdvanceKeypad.prototype.gamepadConnectHandler = function(gamepad) {
@@ -129,10 +143,13 @@ GameBoyAdvanceKeypad.prototype.gamepadConnectHandler = function(gamepad) {
 };
 
 GameBoyAdvanceKeypad.prototype.gamepadDisconnectHandler = function(gamepad) {
-	this.gamepads = self.gamepads.filter(function(other) { return other != gamepad });
+	this.gamepads = this.gamepads.filter(function(other) { return other != gamepad });
 };
 
 GameBoyAdvanceKeypad.prototype.pollGamepads = function() {
+	if (!this.pollsGamepads) {
+		return;
+	}
 	var navigatorList = [];
 	if (navigator.webkitGetGamepads) {
 		navigatorList = navigator.webkitGetGamepads();
@@ -164,6 +181,7 @@ GameBoyAdvanceKeypad.prototype.release = function(button) {
 };
 
 GameBoyAdvanceKeypad.prototype.registerHandlers = function() {
+	this.pollsGamepads = true;
 	if (typeof globalThis !== 'undefined' && globalThis.addEventListener) {
 		globalThis.addEventListener("keydown", this.keyboardHandler.bind(this), true);
 		globalThis.addEventListener("keyup", this.keyboardHandler.bind(this), true);
